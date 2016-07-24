@@ -256,3 +256,5 @@ $query = $db->select( $table )->fetchAll();
 
 
 print_r( $query );
+
+// Warning: only tested in mysql driver
