@@ -1,0 +1,325 @@
+CREATE TABLE STRUCTURE
+
+  @param string table
+  @param array rows
+  @param array settings
+  @return integer|boolean
+
+  ->createTable(table, rows, settings) // This function use [function exec()] to execute SQL Statement
+
+
+Structure
+
+  ->createTable(table_name, [
+   row_name => [
+     type,
+     length,
+     others properties
+     ...
+   ]
+  ],[
+   propertie of table => value
+  ])
+
+  // Ex:
+  ->createTable('test',[
+    'id' => [
+      'varchar',
+      255,
+      'AUTO_INCREMENT',
+      '!NULL'
+    ],
+    'email' => [
+      'varchar',
+      100,
+      '!NULL',
+      'COMMENT' => 'Comment row'
+    ],
+    'PRIMARY KEY' => ['id'],
+    'KEY' => 'id',
+    'UNIQUE KEY' => 'id'
+  ],[
+    'ENGINE' => 'MyISAM',
+    'DEFAULT CHARSET' => 'utf8',
+    'COLLATE' => 'utf8_bin',
+    'STATS_PERSISTENT' => 0,
+    'COMMENT' => 'comment'
+  ]);
+
+  SQL generated and executed:
+
+  CREATE TABLE `teste` (
+  	`id` varchar(255) AUTO_INCREMENT NOT NULL,
+  	`email` varchar(100) NOT NULL COMMENT 'Comment row',
+  	 PRIMARY KEY (`id`),
+  	 KEY `id` (`id`),
+  	 UNIQUE KEY `id` (`id`)
+  ) ENGINE=MyISAM COLLATE=utf8_bin STATS_PERSISTENT=0 COMMENT='comment';
+
+
+
+SELECT STRUCTURE
+
+  @param string table
+  @param string|array|void columns
+  @param string|array|void where
+  @return $this
+
+  ->select(table, columns, where)
+
+
+SELECT Fetch & FetchAll
+
+  Fetch
+  ->select(table, columns, where)->fetch(); // Default of return type: ASSOC
+  Fetch All
+  ->select(table, columns, where)->fetchAll(); // Default of return type: ASSOC
+
+  Fetch Types
+  ASSOC | BOTH | NAMED | LAZY | NUM | OBJ | BOUND | COLUMN | CLASS | INTO | FUNC | GROUP | UNIQUE | KEY_PAIR | CLASSTYPE | SERIALIZE | PROPS_LATE | *
+
+  Ex:
+  ->select(table, columns, where)->fetchAll('OBJ');
+
+
+
+SELECT Columns
+
+  All Columns
+  ->select(table)
+
+  Only one column
+  ->select(table, 'column_name')
+
+  Various Columns
+  ->select(table, ['column1','column2' ...])
+
+
+
+SELECT Where
+
+  ->select(table, columns,
+  [
+    'column_name' => 'value1'
+    'column_name' => 'value2'
+    ...
+  ])
+
+
+SQL Operators
+
+  Operator default {=}
+  ->select(table, columns, [ 'column_name' => 'value' ... ])
+
+  Operator
+  ->select(table, columns,[ 'column_name{operator}' => 'value' ... ])
+
+  Operatos {>|<|>=|<=|<>|=}
+  ->select(table, columns, [ 'id{<=}' => 100 ])
+  ->select(table, columns, [ 'year{>}' => 1998 ])
+
+
+
+SELECT LIMIT
+
+  ->select(table, columns,
+  [
+    'LIMIT' => number
+  ])
+
+
+
+SELECT ORDER BY
+
+  ->select(table, columns,
+    [
+      'ORDER' => 'column_name ASC|DESC'
+    ])
+  OR
+  ->select(table, columns,
+    [
+      'ORDER' => ['column_name ASC','column_name DESC']
+    ])
+
+
+
+SQL DISTINCT
+
+  ->select(table, [ 'DISTINCT' => 'value' ] )
+  OR
+  ->select(table, [ 'DISTINCT' => ['value1','value2' ...] ] )
+
+
+
+
+SQL IN
+
+  ->select(table, columns,[
+    'IN' => [
+        'column_name' => [value, value ...]
+      ]
+   ])
+
+
+
+SQL LIKE & NOT LIKE
+
+  LIKE
+    ->select(table, columns,
+     [
+      'LIKE' => [ 'column_name' => 'pattern' ]
+     ])
+
+  NOT LIKE
+    ->select(table, columns,
+     [
+      '!LIKE' => [ 'column_name' => 'pattern' ]
+     ])
+
+
+
+SQL BETWEEN
+
+  ->select('table','columns',[
+    'BETWEEN' => [
+      'column_name' => ['value1' , 'value2']
+    ]
+  ])
+
+
+
+SELECT Aliases
+
+  ->select(table,[
+    'AS' => [
+      'column_name' => 'aliases_name',
+      'column_name' => 'aliases_name'
+      ...
+    ]
+  ])
+
+
+
+INSERT STRUCTURE
+
+  @param string table
+  @param array data
+  @return $this
+
+  ->insert(table,data)
+
+  Ex:
+  ->insert('table_name',[
+    'column_name1' => 'value1',
+    'column_name2' => 'value2',
+    ...
+  ])
+
+
+UPDATE STRUCTURE
+
+  @param string table
+  @param array data
+  @param array where
+  @return $this
+
+  ->update(table,data,where)
+
+  Ex:
+  ->update('table_name',[
+    'column_name1' => 'value_updated1',
+    'column_name2' => 'value_updated2',
+    ...
+  ],[
+    'column_name_where1' => 'value_where1',
+    'column_name_where2' => 'value_where2',
+    ...
+  ])
+
+
+DELETE STRUCTURE
+
+  @param string table
+  @param array where
+  @return $this
+
+  ->delete(table,where)
+
+  Ex:
+  ->delete('table_name',[
+    'column_where1' => 'value_where1',
+    ...
+  ])
+
+
+DELETE TABLE STRUCTURE
+
+  @param string table
+  @return boolean
+
+  ->deleteTable(table)
+
+  Ex:
+  ->deleteTable('table_name')
+
+
+DELETE DATABASE STRUCTURE
+
+  @param string db
+  @return boolean
+
+  ->deleteDB(db);
+
+  Ex:
+  ->deleteDB('database_name')
+
+
+TRUNCATE TABLE STRUCTURE
+
+  @param string table
+  @return boolean
+
+  ->truncate(table)
+
+  Ex:
+  ->truncate('table_name')
+
+
+
+
+========== Available Functions ==========
+
+->getAvailableDrivers()
+->commit()
+->beginTransaction()
+->rollBack()
+->inTransaction()
+->exec()
+->quote()
+->errorCode()
+->errorInfo()
+->query()
+->rowCount()
+->lastInsertId()
+->prepare()
+->bindColumn()
+->bindParam()
+->bindValue()
+->closeCursor()
+->columnCount()
+->execute()
+->fetch()
+->fetchAll()
+->fetchColumn()
+->fetchObject()
+->getAttribute()
+->setAttribute()
+->select()
+->insert()
+->update()
+->delete()
+->createDB()
+->deleteDB()
+->createTable()
+->deleteTable()
+->truncate()
