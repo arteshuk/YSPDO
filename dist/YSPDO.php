@@ -813,7 +813,7 @@ class YSPDO {
           }else{
             $operator = '=';
           }
-          $sql .= $key . $operator . '? AND ';
+          $sql .= $this->_addGraveAccent($key) . $operator . '? AND ';
         }
         $sql = rtrim($sql,' AND ');
         $sql .= $pos.';';
