@@ -245,6 +245,10 @@ $query = $db->select( $table )->fetchAll();
 // $query = $db->delete( $table ,[
 //   'id' => 301
 // ]);
+//
+// Delete all data
+// $query = $db->delete( $table , '*');
+
 
 // DELETE TABLE
 //
@@ -256,5 +260,3 @@ $query = $db->select( $table )->fetchAll();
 
 
 print_r( $query );
-
-// Warning: only tested in mysql driver

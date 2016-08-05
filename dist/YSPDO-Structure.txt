@@ -5,7 +5,7 @@ CREATE TABLE STRUCTURE
   @param array settings
   @return integer|boolean
 
-  ->createTable(table, rows, settings) // This function use [function exec()] to execute SQL Statement
+  ->createTable(table, rows, settings) // This function use [PDO::exec()] to execute SQL Statement
 
 
 Structure
@@ -63,7 +63,7 @@ SELECT STRUCTURE
   @param string table
   @param string|array|void columns
   @param string|array|void where
-  @return $this
+  @return class
 
   ->select(table, columns, where)
 
@@ -75,7 +75,7 @@ SELECT Fetch & FetchAll
   Fetch All
   ->select(table, columns, where)->fetchAll(); // Default of return type: ASSOC
 
-  Fetch Types
+  Fetch Style
   ASSOC | BOTH | NAMED | LAZY | NUM | OBJ | BOUND | COLUMN | CLASS | INTO | FUNC | GROUP | UNIQUE | KEY_PAIR | CLASSTYPE | SERIALIZE | PROPS_LATE | *
 
   Ex:
@@ -138,7 +138,7 @@ SELECT ORDER BY
   OR
   ->select(table, columns,
     [
-      'ORDER' => ['column_name ASC','column_name DESC']
+      'ORDER' => ['column_name ASC|DESC','column_name ASC|DESC']
     ])
 
 
@@ -204,7 +204,7 @@ INSERT STRUCTURE
 
   @param string table
   @param array data
-  @return $this
+  @return class
 
   ->insert(table,data)
 
@@ -221,7 +221,7 @@ UPDATE STRUCTURE
   @param string table
   @param array data
   @param array where
-  @return $this
+  @return class
 
   ->update(table,data,where)
 
@@ -240,8 +240,8 @@ UPDATE STRUCTURE
 DELETE STRUCTURE
 
   @param string table
-  @param array where
-  @return $this
+  @param array|string where
+  @return class
 
   ->delete(table,where)
 
@@ -250,6 +250,9 @@ DELETE STRUCTURE
     'column_where1' => 'value_where1',
     ...
   ])
+  Or delete all data:
+  ->delete('table_name','*') // @param where accept: '*' or 'all' or 'ALL'
+
 
 
 DELETE TABLE STRUCTURE

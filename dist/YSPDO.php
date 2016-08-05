@@ -242,10 +242,11 @@ class YSPDO {
   * @param int $type
   * @param int $maxlen
   * @param mixed $driverdata
-  * @return boolean
+  * @return class
   */
   public function bindColumn($column, $param, $type=PDO::FETCH_ASSOC, $maxlen=0, $driverdata=null) : bool {
-    return $this->query->bindColumn($column, $param, $type, $maxlen, $driverdata);
+    $this->query->bindColumn($column, $param, $type, $maxlen, $driverdata);
+    return $this;
   }
 
   /**
@@ -258,7 +259,7 @@ class YSPDO {
   * @return class
   */
   public function bindParam($parameter,$value,$type=null,$length=null){
-    $this->query->bindParam($parameter,$value,$type,$length);
+    $this->query->bindParam($parameter, $value, $type, $length);
     return $this;
   }
 
@@ -312,7 +313,7 @@ class YSPDO {
   * @return mixed
   */
   public function fetch($style="ASSOC", $cursor_orientation=PDO::FETCH_ORI_NEXT, $offset=0){
-    return ( $this->query != null ) ? $this->query->fetch($this->_fetchType( $style , $cursor_orientation, $offset )) : false;
+    return ( $this->query != null ) ? $this->query->fetch($this->_fetchStyle( $style , $cursor_orientation, $offset )) : false;
   }
 
   /**
@@ -324,7 +325,7 @@ class YSPDO {
   * @return mixed
   */
   public function fetchAll($style="ASSOC", $argument=PDO::FETCH_COLUMN, $ctor_args=[]){
-    return ( $this->query != null ) ? $this->query->fetchAll($this->_fetchType( $style , $argument , $ctor_args )) : false;
+    return ( $this->query != null ) ? $this->query->fetchAll($this->_fetchStyle( $style , $argument , $ctor_args )) : false;
   }
 
   /**
@@ -374,7 +375,7 @@ class YSPDO {
   *
   * @param string       $table
   * @param string|array $columns
-  * @param array        $where
+  * @param array|null   $where
   * @return class
   */
   public function select($table,$columns='*',$where=null){
@@ -616,7 +617,7 @@ class YSPDO {
   * @param string $method
   * @param string $table
   * @param string|array $data
-  * @param array $where
+  * @param string|array|null $where
   * @return string
   */
   private function cSQL($method,$table,$data,$where){
@@ -655,7 +656,7 @@ class YSPDO {
             if(strtolower( $data ) == 'all' || $data == '*'){
               $n = '*';
             }else{
-              $n = ( preg_match("/\s/m", $data) == 0 ) ? $this->_addGraveAccent( $data ) : $data;
+              $n = ( preg_match("/[\s,`]+/", $data) === 1 ) ? $data : $this->_addGraveAccent( $data );
             }
           }
           $sql = 'SELECT '.$n.' FROM '.$this->_addGraveAccent( $table ) . $this->_cWhere( $where );
@@ -675,21 +676,14 @@ class YSPDO {
           foreach( $data as $key => $val ){
               if(!empty($val)) $sql .= $this->_addGraveAccent( $key ).'=?, ';
           }
-          $sql = rtrim($sql, ', ') . ' WHERE ';
-          foreach( $where as $key => $val ){
-              if(!empty($val)) $sql .= $this->_addGraveAccent( $key ).'=? AND ';
-          }
-          $sql = rtrim($sql, ' AND ') . ';';
+          $sql = rtrim($sql, ', ') . $this->_cWhere( $where );
         break;
         case 'delete':
-          $sql = 'DELETE FROM '.$this->_addGraveAccent( $table );
-          if(!is_null($where)){
-              $sql .= ' WHERE ';
-              foreach( $where as $key => $val ){
-                if(!empty($val)) $sql .= $this->_addGraveAccent( $key ).'=? AND ';
-              }
+          if($where === '*' || (is_string($where) && strtolower($where) == 'all')){
+            $sql = 'DELETE * FROM ' . $this->_addGraveAccent( $table );
+          }else{
+            $sql = 'DELETE FROM ' . $this->_addGraveAccent( $table ) . $this->_cWhere( $where );
           }
-          $sql = rtrim($sql,' AND ') . ';';
         break;
       }
     return $sql;
@@ -813,7 +807,7 @@ class YSPDO {
           }else{
             $operator = '=';
           }
-          $sql .= $this->_addGraveAccent($key) . $operator . '? AND ';
+          $sql .= $key . $operator . '? AND ';
         }
         $sql = rtrim($sql,' AND ');
         $sql .= $pos.';';
@@ -843,7 +837,7 @@ class YSPDO {
   * @param string type
   * @return int
   */
-  private function _fetchType($type) : int {
+  private function _fetchStyle($type) : int {
     switch(strtoupper($type)){
       case 'ASSOC':      $a = PDO::FETCH_ASSOC;      break;
       case 'BOTH':       $a = PDO::FETCH_BOTH;       break;
@@ -862,11 +856,8 @@ class YSPDO {
       case 'CLASSTYPE':  $a = PDO::FETCH_CLASSTYPE;  break;
       case 'SERIALIZE':  $a = PDO::FETCH_SERIALIZE;  break;
       case 'PROPS_LATE': $a = PDO::FETCH_PROPS_LATE; break;
-      default:
-        $a = PDO::FETCH_ASSOC;
-      break;
     }
-    return $a;
+    return $a ?? PDO::FETCH_ASSOC;
   }
 
   /**
@@ -882,7 +873,7 @@ class YSPDO {
       case is_bool($v):   $a = PDO::PARAM_BOOL; break;
       case is_null($v):   $a = PDO::PARAM_NULL; break;
     }
-    return $a ?? 0;
+    return $a ?? PDO::PARAM_NUL;
   }
 
   /**
