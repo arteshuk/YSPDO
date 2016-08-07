@@ -354,6 +354,6 @@ $db->truncate('peoples');
 ## REQUIREMENTS
 PHP Version 7.x or newer
 ## LICENCE
-[MIT](/blob/master/LICENCE.txt)
+[MIT](/LICENCE.txt)
 ***
 This README was translated automatically from `Brazilian Portuguese` to `English`
