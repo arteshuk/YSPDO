@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>YSPDO by gabrieel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">YSPDO</h1>
+      <h2 class="project-tagline">Class in PHP YSPDO is a PDO helper to manipulate dynamically database records using arrays</h2>
+      <a href="https://github.com/gabrieel/YSPDO" class="btn">View on GitHub</a>
+      <a href="https://github.com/gabrieel/YSPDO/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/gabrieel/YSPDO/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="yspdo" class="anchor" href="#yspdo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>YSPDO</h1>
+
+<p>Class in PHP <code>YSPDO</code> is a <code>PDO</code> helper to manipulate dynamically database records using <code>arrays</code></p>
+
+<h3>
+<a id="initialize-class" class="anchor" href="#initialize-class" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Initialize class</h3>
+
+<p>Without defining settings</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">YSPDO</span>; <span class="pl-c">// Change the values of $settings variable in class</span></span></pre></div>
+
+<p>Defining settings</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">YSPDO</span>([</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>driver<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>mysql<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>host<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>port<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-c1">3306</span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>charset<span class="pl-pds">'</span></span>   <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>utf8<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>database<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>dbname<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>root<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>password<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span></span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h2>
+<a id="compare-pdo-and-yspdo-with-crud" class="anchor" href="#compare-pdo-and-yspdo-with-crud" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Compare <code>PDO</code> and <code>YSPDO</code> with <code>CRUD</code>
+</h2>
+
+<h4>
+<a id="start-connection" class="anchor" href="#start-connection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start connection</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">// PDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$pdo</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">PDO</span>(<span class="pl-s"><span class="pl-pds">'</span>DRIVER:host=HOST;dbname=DB_NAME<span class="pl-pds">'</span></span>, <span class="pl-c1">DB_USER</span>, <span class="pl-c1">DB_PASSWORD</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$pdo</span><span class="pl-k">-&gt;</span>setAttribute(<span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">ATTR_ERRMODE</span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">ERRMODE_EXCEPTION</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// YSPDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$db</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">YSPDO</span>([</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>driver<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DRIVER<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>host<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>HOST<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>database<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_NAME<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_USER<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>password<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_PASSWORD<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h4>
+<a id="create" class="anchor" href="#create" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CREATE</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">// PDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$pdo</span><span class="pl-k">-&gt;</span>prepare(<span class="pl-s"><span class="pl-pds">'</span><span class="pl-s1"><span class="pl-k">INSERT INTO</span> <span class="pl-s"><span class="pl-pds">`</span>peoples<span class="pl-pds">`</span></span> (<span class="pl-s"><span class="pl-pds">`</span>name<span class="pl-pds">`</span></span>, <span class="pl-s"><span class="pl-pds">`</span>email<span class="pl-pds">`</span></span>, <span class="pl-s"><span class="pl-pds">`</span>country<span class="pl-pds">`</span></span>) <span class="pl-k">VALUES</span> (?, ?, ?)</span><span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">1</span>, <span class="pl-s"><span class="pl-pds">'</span>Gabriel Almeida<span class="pl-pds">'</span></span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_STR</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">2</span>, <span class="pl-s"><span class="pl-pds">'</span>gabrieel@email.com<span class="pl-pds">'</span></span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_STR</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">3</span>, <span class="pl-s"><span class="pl-pds">'</span>Brazil<span class="pl-pds">'</span></span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_STR</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>execute();</span>
+<span class="pl-s1"><span class="pl-c1">echo</span> <span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>lastInsertId();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// YSPDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>insert(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Gabriel Almeida<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span>   <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>gabrieel@email.com<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>country<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Brazil<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">]);</span>
+<span class="pl-s1"><span class="pl-c1">echo</span> <span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>lastInsertId();</span></pre></div>
+
+<h4>
+<a id="read" class="anchor" href="#read" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>READ</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">// PDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$pdo</span><span class="pl-k">-&gt;</span>prepare(<span class="pl-s"><span class="pl-pds">'</span><span class="pl-s1"><span class="pl-k">SELECT</span> <span class="pl-s"><span class="pl-pds">`</span>name<span class="pl-pds">`</span></span>,<span class="pl-s"><span class="pl-pds">`</span>email<span class="pl-pds">`</span></span>,<span class="pl-s"><span class="pl-pds">`</span>address<span class="pl-pds">`</span></span>,<span class="pl-s"><span class="pl-pds">`</span>company<span class="pl-pds">`</span></span> <span class="pl-k">FROM</span> <span class="pl-s"><span class="pl-pds">`</span>peoples<span class="pl-pds">`</span></span> <span class="pl-k">WHERE</span> id<span class="pl-k">&gt;=</span>?</span><span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">1</span>, <span class="pl-c1">100</span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_INT</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>execute();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c1">print_r</span>( <span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>fetchAll(<span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">FETCH_COLUMN</span>) );</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// YSPDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>address<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>company<span class="pl-pds">'</span></span>],[</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>id{&gt;=}<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">100</span></span>
+<span class="pl-s1">]);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c1">print_r</span>( <span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>fetchAll(<span class="pl-s"><span class="pl-pds">'</span>COLUMN<span class="pl-pds">'</span></span>) );</span>
+<span class="pl-s1"></span></pre></div>
+
+<h4>
+<a id="update" class="anchor" href="#update" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>UPDATE</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">// PDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$pdo</span><span class="pl-k">-&gt;</span>prepare(<span class="pl-s"><span class="pl-pds">'</span><span class="pl-s1"><span class="pl-k">UPDATE</span> <span class="pl-s"><span class="pl-pds">`</span>peoples<span class="pl-pds">`</span></span> <span class="pl-k">SET</span> <span class="pl-s"><span class="pl-pds">`</span>phone<span class="pl-pds">`</span></span><span class="pl-k">=</span>?, <span class="pl-s"><span class="pl-pds">`</span>address<span class="pl-pds">`</span></span><span class="pl-k">=</span>? <span class="pl-k">WHERE</span> id<span class="pl-k">=</span>?</span><span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">1</span>, <span class="pl-s"><span class="pl-pds">'</span>(00) 0000-0000<span class="pl-pds">'</span></span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_STR</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">2</span>, <span class="pl-s"><span class="pl-pds">'</span>4129 Magna. Avenue<span class="pl-pds">'</span></span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_STR</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">3</span>, <span class="pl-c1">100</span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_INT</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>execute();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// YSPDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>update(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>phone<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>(00) 0000-0000<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>address<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>4129 Magna. Avenue<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">],[</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">100</span></span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h4>
+<a id="delete" class="anchor" href="#delete" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">// PDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$pdo</span><span class="pl-k">-&gt;</span>prepare(<span class="pl-s"><span class="pl-pds">'</span><span class="pl-s1"><span class="pl-k">DELETE</span> <span class="pl-k">FROM</span> <span class="pl-s"><span class="pl-pds">`</span>peoples<span class="pl-pds">`</span></span> <span class="pl-k">WHERE</span> id<span class="pl-k">=</span>?</span><span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>bindValue(<span class="pl-c1">1</span>, <span class="pl-c1">100</span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">PARAM_INT</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span><span class="pl-k">-&gt;</span>execute();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// YSPDO</span></span>
+<span class="pl-s1"><span class="pl-smi">$stmt</span> <span class="pl-k">=</span> <span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>delete(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">100</span></span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h2>
+<a id="select" class="anchor" href="#select" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SELECT</h2>
+
+<h4>
+<a id="fetch" class="anchor" href="#fetch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>fetch</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>commodo@sem.edu<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetch();</span></pre></div>
+
+<h4>
+<a id="fetchall" class="anchor" href="#fetchall" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>fetchAll</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>)<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="fetch-setting-type-of-return" class="anchor" href="#fetch-setting-type-of-return" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>fetch setting type of return</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>commodo@sem.edu<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetch(<span class="pl-s"><span class="pl-pds">'</span>OBJ<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h4>
+<a id="fetch-all-setting-type-of-return" class="anchor" href="#fetch-all-setting-type-of-return" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>fetch all setting type of return</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>)<span class="pl-k">-&gt;</span>fetchAll(<span class="pl-s"><span class="pl-pds">'</span>OBJ<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h4>
+<a id="selecting-columns" class="anchor" href="#selecting-columns" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Selecting columns</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>phone<span class="pl-pds">'</span></span>])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="distinct" class="anchor" href="#distinct" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DISTINCT</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>DISTINCT<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    <span class="pl-c">// OR</span></span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>DISTINCT<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>phone<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="aliases" class="anchor" href="#aliases" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ALIASES</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>AS<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>yourName<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>birthday<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>contact<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="operators" class="anchor" href="#operators" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Operators</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>id{&gt;=}<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">100</span></span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="rowcount" class="anchor" href="#rowcount" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>rowCount</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>dolor.sit@ametdiam.ca<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>rowCount();</span></pre></div>
+
+<h4>
+<a id="order-by" class="anchor" href="#order-by" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ORDER BY</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>ORDER<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>city<span class="pl-pds">'</span></span></span>
+<span class="pl-s1"><span class="pl-c">// OR</span></span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>ORDER<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>name DESC<span class="pl-pds">'</span></span></span>
+<span class="pl-s1"><span class="pl-c">// OR</span></span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>ORDER<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>name DESC<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>city ASC<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="between" class="anchor" href="#between" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>BETWEEN</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>BETWEEN<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-c1">1</span>,<span class="pl-c1">25</span>]</span>
+<span class="pl-s1">        <span class="pl-c">// OR</span></span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>a<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>b<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">        <span class="pl-c">// OR</span></span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>05/04/1980<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>05/04/1990<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="not-between" class="anchor" href="#not-between" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>NOT BETWEEN</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>!BETWEEN<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-c1">1</span>,<span class="pl-c1">25</span>]</span>
+<span class="pl-s1">        <span class="pl-c">// OR</span></span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>a<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>b<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">        <span class="pl-c">// OR</span></span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>05/04/1980<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>05/04/1990<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="like" class="anchor" href="#like" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LIKE</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>LIKE<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>g%<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="not-like" class="anchor" href="#not-like" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>NOT LIKE</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>!LIKE<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>g%<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="limit" class="anchor" href="#limit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LIMIT</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>LIMIT<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">10</span></span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll()</span></pre></div>
+
+<h4>
+<a id="in" class="anchor" href="#in" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>IN</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>IN<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>city<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>Acoz<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Pietraroja<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Martelange<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Relegem<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="not-in" class="anchor" href="#not-in" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>NOT IN</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>!IN<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>city<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>Acoz<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Pietraroja<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Martelange<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Relegem<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">    ]</span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h4>
+<a id="using-in--between--not-like--order-by" class="anchor" href="#using-in--between--not-like--order-by" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using IN | BETWEEN | NOT LIKE | ORDER BY</h4>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>select(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>IN<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>02/11/1985<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>11/27/1997<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>09/24/1969<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>01/15/1985<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>09/12/1986<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">    ],</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>BETWEEN<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-c1">1</span>,<span class="pl-c1">50</span>]</span>
+<span class="pl-s1">    ],</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>!LIKE<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>city<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>s%<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    ],</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>ORDER<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>city ASC<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">])<span class="pl-k">-&gt;</span>fetchAll();</span></pre></div>
+
+<h3>
+<a id="create-database" class="anchor" href="#create-database" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CREATE DATABASE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>createDB(<span class="pl-s"><span class="pl-pds">'</span>dbname<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h3>
+<a id="delete-database" class="anchor" href="#delete-database" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE DATABASE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>deleteDB(<span class="pl-s"><span class="pl-pds">'</span>dbname<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h3>
+<a id="create-table" class="anchor" href="#create-table" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CREATE TABLE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>createTable(<span class="pl-s"><span class="pl-pds">'</span>teste<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>varchar<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">        <span class="pl-c1">255</span>,</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>AUTO_INCREMENT<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>!NULL<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    ],</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>varchar<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">        <span class="pl-c1">100</span>,</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>!NULL<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">        <span class="pl-s"><span class="pl-pds">'</span>COMMENT<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Comment row<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    ],</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>PRIMARY KEY<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>]</span>
+<span class="pl-s1">],[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>ENGINE<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>MyISAM<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>DEFAULT CHARSET<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>utf8<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>COLLATE<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>utf8_bin<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>STATS_PERSISTENT<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">0</span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>COMMENT<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>comment<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h3>
+<a id="insert-into" class="anchor" href="#insert-into" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>INSERT INTO</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>insert(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">301</span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Gabriel<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>phone<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>+0000000000<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>00/00/0000<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>name@test.com<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>address<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Street teste address nº 1000 Av test<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>city<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Araguaina<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>country<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Brazil<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>company<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>No Company<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h3>
+<a id="update-1" class="anchor" href="#update-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>UPDATE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>update(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>phone<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>+1111111111<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>date<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>11/11/1111<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>email<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>name@server.co<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>address<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>Street teste address nº 1000 Av test<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">],[ <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">301</span> ]);</span></pre></div>
+
+<h3>
+<a id="delete-1" class="anchor" href="#delete-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>delete(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>,[</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-c1">301</span></span>
+<span class="pl-s1">]);</span></pre></div>
+
+<h3>
+<a id="delete-table" class="anchor" href="#delete-table" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE TABLE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>deleteTable(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h3>
+<a id="truncate-table" class="anchor" href="#truncate-table" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TRUNCATE TABLE</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span><span class="pl-k">-&gt;</span>truncate(<span class="pl-s"><span class="pl-pds">'</span>peoples<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h3>
+<a id="available-functions" class="anchor" href="#available-functions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Available Functions</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-k">-&gt;</span>getAvailableDrivers()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>commit()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>beginTransaction()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>rollBack()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>inTransaction()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>exec()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>quote()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>errorCode()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>errorInfo()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>query()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>rowCount()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>lastInsertId()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>prepare()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>bindColumn()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>bindParam()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>bindValue()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>closeCursor()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>columnCount()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>execute()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>fetch()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>fetchAll()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>fetchColumn()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>fetchObject()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>getAttribute()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>setAttribute()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>select()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>insert()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>update()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>delete()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>createDB()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>deleteDB()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>createTable()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>deleteTable()</span>
+<span class="pl-s1"><span class="pl-k">-&gt;</span>truncate()</span></pre></div>
+
+<hr>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>REQUIREMENTS</h2>
+
+<p>PHP Version 7.x or newer</p>
+
+<h2>
+<a id="licence" class="anchor" href="#licence" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LICENCE</h2>
+
+<p><a href="/LICENCE.txt">MIT</a></p>
+
+<hr>
+
+<p>This README was translated automatically from <code>Brazilian Portuguese</code> to <code>English</code></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/gabrieel/YSPDO">YSPDO</a> is maintained by <a href="https://github.com/gabrieel">gabrieel</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
