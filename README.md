@@ -1,9 +1,9 @@
 # YSPDO
-Class in PHP `YSPDO` is a `PDO` helper to manipulate dynamically database using `arrays`
+Class in PHP `YSPDO` is a `PDO` helper to manipulate dynamically database records using `arrays`
 ### Initialize class
 Without defining settings
 ```php
-$db = new YSPDO;
+$db = new YSPDO; // Change the values of $settings variable in class
 ```
 Defining settings
 ```php
@@ -15,6 +15,86 @@ $db = new YSPDO([
     'database'  => 'dbname',
     'user'      => 'root',
     'password'  => ''
+]);
+```
+## Compare `PDO` and `YSPDO` with `CRUD`
+#### Start connection
+```php
+// PDO
+$pdo = new PDO('DRIVER:host=HOST;dbname=DB_NAME', DB_USER, DB_PASSWORD);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+// YSPDO
+$db = new YSPDO([
+    'driver'    => 'DRIVER',
+    'host'      => 'HOST',
+    'database'  => 'DB_NAME',
+    'user'      => 'DB_USER',
+    'password'  => 'DB_PASSWORD'
+]);
+```
+#### CREATE
+```php
+// PDO
+$stmt = $pdo->prepare('INSERT INTO `peoples` (`name`, `email`, `country`) VALUES (?, ?, ?)');
+$stmt->bindValue(1, 'Gabriel Almeida', PDO::PARAM_STR);
+$stmt->bindValue(2, 'gabrieel@email.com', PDO::PARAM_STR);
+$stmt->bindValue(3, 'Brazil', PDO::PARAM_STR);
+$stmt->execute();
+echo $stmt->lastInsertId();
+
+// YSPDO
+$stmt = $db->insert('peoples',[
+  'name'    => 'Gabriel Almeida',
+  'email'   => 'gabrieel@email.com',
+  'country' => 'Brazil'
+]);
+echo $stmt->lastInsertId();
+```
+#### READ
+```php
+// PDO
+$stmt = $pdo->prepare('SELECT `name`,`email`,`address`,`company` FROM `peoples` WHERE id>=?');
+$stmt->bindValue(1, 100, PDO::PARAM_INT);
+$stmt->execute();
+
+print_r( $stmt->fetchAll(PDO::FETCH_COLUMN) );
+
+// YSPDO
+$stmt = $db->select('peoples',['name','email','address','company'],[
+  'id{>=}' => 100
+]);
+
+print_r( $stmt->fetchAll('COLUMN') );
+
+```
+#### UPDATE
+```php
+// PDO
+$stmt = $pdo->prepare('UPDATE `peoples` SET `phone`=?, `address`=? WHERE id=?');
+$stmt->bindValue(1, '(00) 0000-0000', PDO::PARAM_STR);
+$stmt->bindValue(2, '4129 Magna. Avenue', PDO::PARAM_STR);
+$stmt->bindValue(3, 100, PDO::PARAM_INT);
+$stmt->execute();
+
+// YSPDO
+$stmt = $db->update('peoples',[
+  'phone' => '(00) 0000-0000',
+  'address' => '4129 Magna. Avenue',
+],[
+  'id' => 100
+]);
+```
+#### DELETE
+```php
+// PDO
+$stmt = $pdo->prepare('DELETE FROM `peoples` WHERE id=?');
+$stmt->bindValue(1, 100, PDO::PARAM_INT);
+$stmt->execute();
+
+// YSPDO
+$stmt = $db->delete('peoples',[
+  'id' => 100
 ]);
 ```
 ## SELECT
@@ -272,10 +352,8 @@ $db->truncate('peoples');
 ```
 ***
 ## REQUIREMENTS
-PHP Version >= 7
-## QUESTIONS AND FEEDBACK
-Email: gabrieel@email.com
+PHP Version 7.x or newer
 ## LICENCE
-MIT
+[MIT](/blob/master/LICENCE.txt)
 ***
 This README was translated automatically from `Brazilian Portuguese` to `English`
