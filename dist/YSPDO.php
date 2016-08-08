@@ -429,7 +429,7 @@ class YSPDO {
   * @param array  $where
   * @return class
   */
-  public function update($table,$data,$where){
+  public function update($table,$data,$where=null){
     $sql = $this->cSQL('update',$table,$data,$where);
     try {
       $this->query = $this->connection->prepare($sql);
@@ -807,7 +807,7 @@ class YSPDO {
           }else{
             $operator = '=';
           }
-          $sql .= $key . $operator . '? AND ';
+          $sql .= $this->_addGraveAccent( $key ) . $operator . '? AND ';
         }
         $sql = rtrim($sql,' AND ');
         $sql .= $pos.';';
