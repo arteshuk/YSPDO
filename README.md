@@ -357,3 +357,5 @@ PHP Version 7.x or newer
 [MIT](/LICENCE.txt)
 ***
 This README was translated automatically from `Brazilian Portuguese` to `English`
+***
+I had never heard of `Medoo` when i was developing this class. ¯\_(ツ)_/¯
