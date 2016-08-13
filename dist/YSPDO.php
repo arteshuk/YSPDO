@@ -68,7 +68,7 @@ class YSPDO {
 
       switch ($this->settings['driver']) {
         case 'mysql':
-          $this->connection = new PDO(
+          $this->connection = new \PDO(
             'mysql'
             .':host='.$this->settings['host']
             .';port='.$this->settings['port']
@@ -77,23 +77,23 @@ class YSPDO {
             $this->settings['user'],
             $this->settings['password'],
             [
-              PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-              PDO::ATTR_PERSISTENT => false
+              \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+              \PDO::ATTR_PERSISTENT => false
             ]
           );
         break;
         case 'mssql':
         case 'sybase':
-          $this->connection = new PDO("{$this->settings['driver']}:host={$this->settings['host']};dbname={$this->settings['database']},{$this->settings['user']},{$this->settings['password']}");
+          $this->connection = new \PDO("{$this->settings['driver']}:host={$this->settings['host']};dbname={$this->settings['database']},{$this->settings['user']},{$this->settings['password']}");
         break;
         case 'sqlite':
-          $this->connection = new PDO("sqlite:{$this->settings['database']}");
+          $this->connection = new \PDO("sqlite:{$this->settings['database']}");
         break;
         case 'firebird':
-          $this->connection = new PDO("firebird:host={$this->settings['host']};dbname={$this->settings['database']};charset={$this->settings['charset']}", $this->settings['user'], $this->settings['password']);
+          $this->connection = new \PDO("firebird:host={$this->settings['host']};dbname={$this->settings['database']};charset={$this->settings['charset']}", $this->settings['user'], $this->settings['password']);
         break;
         case 'pgsql':
-          $this->connection = new PDO("pgsql:host={$this->settings['host']};port={$this->settings['port']};dbname={$this->settings['database']};user={$this->settings['user']};password={$this->settings['password']}");
+          $this->connection = new \PDO("pgsql:host={$this->settings['host']};port={$this->settings['port']};dbname={$this->settings['database']};user={$this->settings['user']};password={$this->settings['password']}");
         break;
         default:
           die("Database driver {$this->settings['driver']} unavailable");
@@ -110,7 +110,7 @@ class YSPDO {
   * @return array
   */
   public function getAvailableDrivers() : array {
-    return PDO::getAvailableDrivers();
+    return \PDO::getAvailableDrivers();
   }
 
   /**
@@ -166,7 +166,7 @@ class YSPDO {
   * @param int $parameter_type
   * @return string
   */
-  public function quote($string, $parameter_type=PDO::PARAM_STR) : string {
+  public function quote($string, $parameter_type=\PDO::PARAM_STR) : string {
     return $this->connection->quote( $string , $parameter_type );
   }
 
@@ -244,7 +244,7 @@ class YSPDO {
   * @param mixed $driverdata
   * @return class
   */
-  public function bindColumn($column, $param, $type=PDO::FETCH_ASSOC, $maxlen=0, $driverdata=null) : bool {
+  public function bindColumn($column, $param, $type=\PDO::FETCH_ASSOC, $maxlen=0, $driverdata=null) : bool {
     $this->query->bindColumn($column, $param, $type, $maxlen, $driverdata);
     return $this;
   }
@@ -312,7 +312,7 @@ class YSPDO {
   * @param int $offset
   * @return mixed
   */
-  public function fetch($style="ASSOC", $cursor_orientation=PDO::FETCH_ORI_NEXT, $offset=0){
+  public function fetch($style="ASSOC", $cursor_orientation=\PDO::FETCH_ORI_NEXT, $offset=0){
     return ( $this->query != null ) ? $this->query->fetch($this->_fetchStyle( $style , $cursor_orientation, $offset )) : false;
   }
 
@@ -324,7 +324,7 @@ class YSPDO {
   * @param array $ctor_args
   * @return mixed
   */
-  public function fetchAll($style="ASSOC", $argument=PDO::FETCH_COLUMN, $ctor_args=[]){
+  public function fetchAll($style="ASSOC", $argument=\PDO::FETCH_COLUMN, $ctor_args=[]){
     return ( $this->query != null ) ? $this->query->fetchAll($this->_fetchStyle( $style , $argument , $ctor_args )) : false;
   }
 
@@ -839,25 +839,25 @@ class YSPDO {
   */
   private function _fetchStyle($type) : int {
     switch(strtoupper($type)){
-      case 'ASSOC':      $a = PDO::FETCH_ASSOC;      break;
-      case 'BOTH':       $a = PDO::FETCH_BOTH;       break;
-      case 'NAMED':      $a = PDO::FETCH_NAMED;      break;
-      case 'LAZY':       $a = PDO::FETCH_LAZY;       break;
-      case 'NUM':        $a = PDO::FETCH_NUM;        break;
-      case 'OBJ':        $a = PDO::FETCH_OBJ;        break;
-      case 'BOUND':      $a = PDO::FETCH_BOUND;      break;
-      case 'COLUMN':     $a = PDO::FETCH_COLUMN;     break;
-      case 'CLASS':      $a = PDO::FETCH_CLASS;      break;
-      case 'INTO':       $a = PDO::FETCH_INTO;       break;
-      case 'FUNC':       $a = PDO::FETCH_FUNC;       break;
-      case 'GROUP':      $a = PDO::FETCH_GROUP;      break;
-      case 'UNIQUE':     $a = PDO::FETCH_UNIQUE;     break;
-      case 'KEY_PAIR':   $a = PDO::FETCH_KEY_PAIR;   break;
-      case 'CLASSTYPE':  $a = PDO::FETCH_CLASSTYPE;  break;
-      case 'SERIALIZE':  $a = PDO::FETCH_SERIALIZE;  break;
-      case 'PROPS_LATE': $a = PDO::FETCH_PROPS_LATE; break;
+      case 'ASSOC':      $a = \PDO::FETCH_ASSOC;      break;
+      case 'BOTH':       $a = \PDO::FETCH_BOTH;       break;
+      case 'NAMED':      $a = \PDO::FETCH_NAMED;      break;
+      case 'LAZY':       $a = \PDO::FETCH_LAZY;       break;
+      case 'NUM':        $a = \PDO::FETCH_NUM;        break;
+      case 'OBJ':        $a = \PDO::FETCH_OBJ;        break;
+      case 'BOUND':      $a = \PDO::FETCH_BOUND;      break;
+      case 'COLUMN':     $a = \PDO::FETCH_COLUMN;     break;
+      case 'CLASS':      $a = \PDO::FETCH_CLASS;      break;
+      case 'INTO':       $a = \PDO::FETCH_INTO;       break;
+      case 'FUNC':       $a = \PDO::FETCH_FUNC;       break;
+      case 'GROUP':      $a = \PDO::FETCH_GROUP;      break;
+      case 'UNIQUE':     $a = \PDO::FETCH_UNIQUE;     break;
+      case 'KEY_PAIR':   $a = \PDO::FETCH_KEY_PAIR;   break;
+      case 'CLASSTYPE':  $a = \PDO::FETCH_CLASSTYPE;  break;
+      case 'SERIALIZE':  $a = \PDO::FETCH_SERIALIZE;  break;
+      case 'PROPS_LATE': $a = \PDO::FETCH_PROPS_LATE; break;
     }
-    return $a ?? PDO::FETCH_ASSOC;
+    return $a ?? \PDO::FETCH_ASSOC;
   }
 
   /**
@@ -868,12 +868,12 @@ class YSPDO {
   */
   private function _getTypeVar($v) : int {
     switch (true){
-      case is_string($v): $a = PDO::PARAM_STR;  break;
-      case is_int($v):    $a = PDO::PARAM_INT;  break;
-      case is_bool($v):   $a = PDO::PARAM_BOOL; break;
-      case is_null($v):   $a = PDO::PARAM_NULL; break;
+      case is_string($v): $a = \PDO::PARAM_STR;  break;
+      case is_int($v):    $a = \PDO::PARAM_INT;  break;
+      case is_bool($v):   $a = \PDO::PARAM_BOOL; break;
+      case is_null($v):   $a = \PDO::PARAM_NULL; break;
     }
-    return $a ?? PDO::PARAM_NUL;
+    return $a ?? \PDO::PARAM_NUL;
   }
 
   /**
