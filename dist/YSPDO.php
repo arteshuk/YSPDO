@@ -505,21 +505,21 @@ class YSPDO {
   * @return boolean
   */
   public function createTable($table,$rows,$settings){
-    $sql = "CREATE TABLE {$this->_addGraveAccent($table)} (\n\t";
+    $sql = "CREATE TABLE {$this->_backtick($table)} (\n\t";
     foreach ($rows as $row_k => $row_v) {
       switch ($row_k) {
         case 'PRIMARY KEY':
           $st = " PRIMARY KEY (";
           foreach ($row_v as $sv) {
-            $st .= $this->_addGraveAccent($sv).',';
+            $st .= $this->_backtick($sv).',';
           }
           $sql .= rtrim($st,',').')';
         break;
         case 'KEY': case 'UNIQUE KEY':
-          $sql .= ' ' . $row_k . ' ' . $this->_addGraveAccent($row_v) . ' ('.$this->_addGraveAccent($row_v).')';
+          $sql .= ' ' . $row_k . ' ' . $this->_backtick($row_v) . ' ('.$this->_backtick($row_v).')';
         break;
         default:
-        $sql .= $this->_addGraveAccent($row_k);
+        $sql .= $this->_backtick($row_k);
         foreach ($row_v as $k => $v) {
           if(is_numeric($k)){
             if($k == 0){
@@ -631,7 +631,7 @@ class YSPDO {
                 $n .= 'DISTINCT ';
                 if(is_array($value)){
                   foreach ($value as $v) {
-                    $n .= $this->_addGraveAccent( $v ).',';
+                    $n .= $this->_backtick( $v ).',';
                   }
                   $n = rtrim($n,',');
                 }else{
@@ -639,7 +639,7 @@ class YSPDO {
                 }
               }elseif ($key === 'AS') {
                 foreach ($value as $_key => $_val) {
-                  $data = [$this->_addGraveAccent( $_key ),$this->_addGraveAccent( $_val )];
+                  $data = [$this->_backtick( $_key ),$this->_backtick( $_val )];
                   $n .= $data[0].' AS '.$data[1].',';
                 }
                 $n = rtrim($n,',');
@@ -647,7 +647,7 @@ class YSPDO {
                 if(is_string( $key )){
                   $n .= ' '.$key.' '.$value.',';
                 }else{
-                  $n .= $this->_addGraveAccent( $value ).',';
+                  $n .= $this->_backtick( $value ).',';
                 }
               }
             }
@@ -656,46 +656,61 @@ class YSPDO {
             if(strtolower( $data ) == 'all' || $data == '*'){
               $n = '*';
             }else{
-              $n = ( preg_match("/[\s,`]+/", $data) === 1 ) ? $data : $this->_addGraveAccent( $data );
+              $n = ( preg_match("/[[\s,`]+/", $data) === 1 ) ? $data : $this->_backtick( $data );
             }
           }
-          $sql = 'SELECT '.$n.' FROM '.$this->_addGraveAccent( $table ) . $this->_cWhere( $where );
+          $sql = 'SELECT '.$n.' FROM '.$this->_backtick( $table ) . $this->_cWhere( $where );
         break;
         case 'insert':
-          $sql = 'INSERT INTO '.$this->_addGraveAccent( $table ).' ';
+          $sql = 'INSERT INTO '.$this->_backtick( $table ).' ';
           $v = '';
           $n = '';
           foreach( $data as $key => $val ){
-            $n .= $this->_addGraveAccent( $key ).', ';
+            $n .= $this->_backtick( $key ).', ';
             $v .= '?, ';
           }
           $sql .= "(". rtrim($n, ', ') .") VALUES (". rtrim($v, ', ') .");";
         break;
         case 'update':
-          $sql = 'UPDATE '.$this->_addGraveAccent( $table ).' SET ';
+          $sql = 'UPDATE '.$this->_backtick( $table ).' SET ';
           foreach( $data as $key => $val ){
-              if(!empty($val)) $sql .= $this->_addGraveAccent( $key ).'=?, ';
+              if(!empty($val)) $sql .= $this->_backtick( $key ).'=?, ';
           }
           $sql = rtrim($sql, ', ') . $this->_cWhere( $where );
         break;
         case 'delete':
           if($where === '*' || (is_string($where) && strtolower($where) == 'all')){
-            $sql = 'DELETE * FROM ' . $this->_addGraveAccent( $table );
+            $sql = 'DELETE * FROM ' . $this->_backtick( $table );
           }else{
-            $sql = 'DELETE FROM ' . $this->_addGraveAccent( $table ) . $this->_cWhere( $where );
+            $sql = 'DELETE FROM ' . $this->_backtick( $table ) . $this->_cWhere( $where );
           }
         break;
       }
     return $sql;
   }
 
+
   /**
-  * Add grave accent on string
+  * Add backtick||brackets on string
   *
-  * @param string $str
+  * @param string $s
   * @return string
   */
-  private function _addGraveAccent($str){ return '`'.$str.'`'; }
+  private function _backtick($s){
+    if( preg_match( '/\[(.*)\]/' , $s ) == 0 ){
+      if( strpos( $s , '.' ) !== false ){
+        $s = explode('.',$s);
+        foreach ($s as $k => $v) {
+          $s[$k] = '`'.$v.'`';
+        }
+        return join('.',$s);
+      }else{
+        return '`'.$s.'`';
+      }
+    }else{
+      return $s;
+    }
+  }
 
   /**
   * Create Where for SQL
@@ -719,18 +734,18 @@ class YSPDO {
                 foreach ($val as $data) {
                   if(strpos($data, ' ') !== false){
                     $data = explode(' ',$data);
-                    $pos .= $this->_addGraveAccent($data[0]).' '.$data[1].', ';
+                    $pos .= $this->_backtick($data[0]).' '.$data[1].', ';
                   }else{
-                    $pos .= $this->_addGraveAccent($data).', ';
+                    $pos .= $this->_backtick($data).', ';
                   }
                 }
                 $pos = rtrim($pos,', ');
               }else{
                 if(strpos($val, ' ') !== false){
                   $data = explode(' ',$val);
-                  $pos .= $this->_addGraveAccent($data[0]).' '.$data[1];
+                  $pos .= $this->_backtick($data[0]).' '.$data[1];
                 }else{
-                  $pos .= $this->_addGraveAccent($val);
+                  $pos .= $this->_backtick($val);
                 }
               }
             break;
@@ -744,7 +759,7 @@ class YSPDO {
                 $addedWHERE = true;
               }
               $in = ( strpos( $key , '!' ) !== false ) ? ' NOT IN ' : ' IN ';
-              $sql .= $this->_addGraveAccent(key( $val )) . $in . '(';
+              $sql .= $this->_backtick(key( $val )) . $in . '(';
               foreach($val[key($val)] as $values){
                 $sql .= '\''.$values.'\',';
               }
@@ -758,7 +773,7 @@ class YSPDO {
                 $addedWHERE = true;
               }
               $like = ( strpos( $key , '!' ) !== false ) ? ' NOT LIKE ' : ' LIKE ';
-              $sql .= $this->_addGraveAccent( key( $val ) ) . $like . '\''.$val[key($val)].'\'';
+              $sql .= $this->_backtick( key( $val ) ) . $like . '\''.$val[key($val)].'\'';
               if(next($where)!==false){
                 if(!current($where) || !in_array(key($where),$doNotNeedAND)){
                   $sql .= ' AND ';
@@ -778,7 +793,7 @@ class YSPDO {
                 }
               }
               $between = ( strpos( $key , '!' ) !== false ) ? 'NOT BETWEEN' : 'BETWEEN';
-              $sql .= $this->_addGraveAccent(key($val))." {$between} {$data[0]} AND {$data[1]}";
+              $sql .= $this->_backtick(key($val))." {$between} {$data[0]} AND {$data[1]}";
               if(next($where)!==false){
                 if(!current($where) || !in_array(key($where),$doNotNeedAND)){
                   $sql .= ' AND ';
@@ -807,7 +822,7 @@ class YSPDO {
           }else{
             $operator = '=';
           }
-          $sql .= $this->_addGraveAccent( $key ) . $operator . '? AND ';
+          $sql .= $this->_backtick( $key ) . $operator . '? AND ';
         }
         $sql = rtrim($sql,' AND ');
         $sql .= $pos.';';
