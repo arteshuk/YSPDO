@@ -1,14 +1,19 @@
 <?php
 
 /**
- * YSPDO - Dynamically manipulate database with arrays
+ * YSPDO - Manipulate table records of database with PDO using arrays
  *
  * @author  Gabriel Almeida - gabrieel@email.com
- * @version 1.0.0
+ * @version 1.0.1
  * @license MIT
  */
 
 class YSPDO {
+
+  /**
+  * @var $dsn
+  */
+  private $dsn = null;
 
   /**
   * @var $connection
@@ -23,27 +28,33 @@ class YSPDO {
   * @var $settings
   */
   private $settings = [
-                      'driver'    => '',
-                      'host'      => '',
-                      'port'      => 3306,
-                      'charset'   => 'utf8',
-                      'database'  => '',
-                      'user'      => '',
-                      'password'  => ''
+                        'driver'    => '',
+                        'prefix'    => '',
+                        'suffix'    => ''
                       ];
 
   /**
   * Method magic __construct
   *
-  * @param array $settings
+  * @param array $dsn
+  * @param string $username
+  * @param string $password
+  * @param array $options
   * @return void
   */
-  public function __construct($settings=null){
-    if(!is_null($settings)){
-      $this->_setSettings($settings);
+  public function __construct(array $dsn, string $username = null, string $password = null, array $options = []){
+    $this->settings = (object) $this->settings;
+    $this->_buildDSN($dsn);
+    try{
+      if(!in_array($this->settings->driver,$this->getAvailableDrivers())){
+        die('YSPDO error: '.strtoupper($this->settings->driver).' driver unavailable');
+      }
+      $this->connection = new \PDO( $this->dsn , $username, $password, $options );
+    }catch (PDOException $e){
+      $this->_PDOException($e);
     }
-    $this->init();
   }
+
   /**
   * Method magic __destruct
   *
@@ -52,56 +63,6 @@ class YSPDO {
   public function __destruct(){
     $this->connection   = null;
     $this->query        = null;
-  }
-
-  /**
-  * Initialize connection with database
-  *
-  * @return void
-  */
-  private function init(){
-    try{
-
-      if(!in_array($this->settings['driver'],$this->getAvailableDrivers())){
-        die(strtoupper($this->settings['driver'])." Driver not loaded");
-      }
-
-      switch ($this->settings['driver']) {
-        case 'mysql':
-          $this->connection = new \PDO(
-            'mysql'
-            .':host='.$this->settings['host']
-            .';port='.$this->settings['port']
-            .';dbname='.$this->settings['database']
-            .';charset='.$this->settings['charset'],
-            $this->settings['user'],
-            $this->settings['password'],
-            [
-              \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-              \PDO::ATTR_PERSISTENT => false
-            ]
-          );
-        break;
-        case 'mssql':
-        case 'sybase':
-          $this->connection = new \PDO("{$this->settings['driver']}:host={$this->settings['host']};dbname={$this->settings['database']},{$this->settings['user']},{$this->settings['password']}");
-        break;
-        case 'sqlite':
-          $this->connection = new \PDO("sqlite:{$this->settings['database']}");
-        break;
-        case 'firebird':
-          $this->connection = new \PDO("firebird:host={$this->settings['host']};dbname={$this->settings['database']};charset={$this->settings['charset']}", $this->settings['user'], $this->settings['password']);
-        break;
-        case 'pgsql':
-          $this->connection = new \PDO("pgsql:host={$this->settings['host']};port={$this->settings['port']};dbname={$this->settings['database']};user={$this->settings['user']};password={$this->settings['password']}");
-        break;
-        default:
-          die("Database driver {$this->settings['driver']} unavailable");
-          break;
-      }
-    }catch (PDOException $e){
-      $this->_PDOException($e);
-    }
   }
 
   /**
@@ -659,10 +620,10 @@ class YSPDO {
               $n = ( preg_match("/[[\s,`]+/", $data) === 1 ) ? $data : $this->_backtick( $data );
             }
           }
-          $sql = 'SELECT '.$n.' FROM '.$this->_backtick( $table ) . $this->_cWhere( $where );
+          $sql = 'SELECT '.$n.' FROM '.$this->_backtick( $table , false ) . $this->_cWhere( $where );
         break;
         case 'insert':
-          $sql = 'INSERT INTO '.$this->_backtick( $table ).' ';
+          $sql = 'INSERT INTO '.$this->_backtick( $table , false ).' ';
           $v = '';
           $n = '';
           foreach( $data as $key => $val ){
@@ -672,7 +633,7 @@ class YSPDO {
           $sql .= "(". rtrim($n, ', ') .") VALUES (". rtrim($v, ', ') .");";
         break;
         case 'update':
-          $sql = 'UPDATE '.$this->_backtick( $table ).' SET ';
+          $sql = 'UPDATE '.$this->_backtick( $table , false ).' SET ';
           foreach( $data as $key => $val ){
               if(!empty($val)) $sql .= $this->_backtick( $key ).'=?, ';
           }
@@ -680,9 +641,9 @@ class YSPDO {
         break;
         case 'delete':
           if($where === '*' || (is_string($where) && strtolower($where) == 'all')){
-            $sql = 'DELETE * FROM ' . $this->_backtick( $table );
+            $sql = 'DELETE * FROM ' . $this->_backtick( $table , false );
           }else{
-            $sql = 'DELETE FROM ' . $this->_backtick( $table ) . $this->_cWhere( $where );
+            $sql = 'DELETE FROM ' . $this->_backtick( $table , false ) . $this->_cWhere( $where );
           }
         break;
       }
@@ -694,21 +655,34 @@ class YSPDO {
   * Add backtick||brackets on string
   *
   * @param string $s
+  * @param boolean $ps
   * @return string
   */
-  private function _backtick($s){
+  private function _backtick($s,$ps=true){
     if( preg_match( '/\[(.*)\]/' , $s ) == 0 ){
       if( strpos( $s , '.' ) !== false ){
         $s = explode('.',$s);
         foreach ($s as $k => $v) {
-          $s[$k] = '`'.$v.'`';
+          if($ps){
+            $s[$k] = '`'.$this->settings->prefix.$v.$this->settings->suffix.'`';
+          }else{
+            $s[$k] = '`'.$v.'`';
+          }
         }
         return join('.',$s);
       }else{
-        return '`'.$s.'`';
+        if($ps){
+          return '`'.$this->settings->prefix.$s.$this->settings->suffix.'`';
+        }else{
+          return '`'.$s.'`';
+        }
       }
     }else{
-      return $s;
+      if($ps){
+        return $this->settings->prefix.$s.$this->settings->suffix;
+      }else{
+        return $s;
+      }
     }
   }
 
@@ -892,16 +866,27 @@ class YSPDO {
   }
 
   /**
-  * Set settings
+  * Build string DSN
   *
-  * @param array $settings
+  * @param array $d
   * @return void
   */
-  private function _setSettings($settings){
-    foreach ($settings as $key => $value) {
-      if(array_key_exists($key,$this->settings)){
-        $this->settings[$key] = $value;
+  private function _buildDSN(array $d){
+    $b = [];
+    $this->settings->driver = $d[0];
+    if(count($d) == 2 && is_int(array_search(end($d),$d))){
+      $this->dsn = $d[0] . ':' . $d[1];
+    }else{
+      $this->dsn = $d[0].':';
+      unset($d[0]);
+      foreach ($d as $k => $v) {
+        if($k == 'prefix' || $k == 'suffix'){
+          $this->settings->$k = $v;
+        }else{
+          array_push($b, $k.'='.$v);
+        }
       }
+      $this->dsn .= join($b,';');
     }
   }
 }

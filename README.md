@@ -1,37 +1,28 @@
 # YSPDO
 Class in PHP `YSPDO` is a `PDO` helper to manipulate dynamically database records using `arrays`
 ### Initialize class
-Without defining settings
-```php
-$db = new YSPDO; // Change the values of $settings variable in class
-```
-Defining settings
+
 ```php
 $db = new YSPDO([
-    'driver'    => 'mysql',
-    'host'      => 'localhost',
-    'port'      => 3306,
-    'charset'   => 'utf8',
-    'database'  => 'dbname',
-    'user'      => 'root',
-    'password'  => ''
-]);
+  'mysql',  // First driver | without to set key of this value
+  'host'    => 'localhost',
+  'port'    => 3306,
+  'dbname'  => 'generatedata'
+],'root','');
 ```
 ## Compare `PDO` and `YSPDO` with `CRUD`
 #### Start connection
 ```php
 // PDO
-$pdo = new PDO('DRIVER:host=HOST;dbname=DB_NAME', DB_USER, DB_PASSWORD);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$pdo = new PDO('DRIVER:host=HOST;dbname=DB_NAME;port=PORT', 'DB_USER', 'DB_PASSWORD');
 
 // YSPDO
 $db = new YSPDO([
-    'driver'    => 'DRIVER',
-    'host'      => 'HOST',
-    'database'  => 'DB_NAME',
-    'user'      => 'DB_USER',
-    'password'  => 'DB_PASSWORD'
-]);
+  'DRIVER',
+  'host'    => 'HOST',
+  'port'    => PORT,
+  'dbname'  => 'DB_NAME'
+], 'DB_USER', 'DB_PASSWORD');
 ```
 #### CREATE
 ```php
@@ -353,6 +344,5 @@ $db->truncate('peoples');
 ***
 ## REQUIREMENTS
 PHP Version 7.x or newer
-PDO and PDO_MYSQL extensions enabled
 ## LICENCE
 [MIT](/LICENCE.txt)

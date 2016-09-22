@@ -1,15 +1,15 @@
 <?php
 
-include "../dist/YSPDO.php";
+include __DIR__ . "/../dist/YSPDO.php";
 
 
 $db = new YSPDO([
-  'driver'    => 'mysql',
-  'host'      => 'localhost',
-  'database'  => 'generatedata',
-  'user'      => 'root',
-  'password'  => '4575621'
-]);
+  'mysql',
+  'host' => 'localhost',
+  'port' => 3306,
+  'dbname' => 'generatedata',
+  'charset' => 'utf8',
+],'root','');
 
 
 /**
@@ -31,7 +31,7 @@ $db = new YSPDO([
 // Column
 //
 // $query = $db->select('peoples',['name']);
-// Or without array
+// Or without array (recommended)
 // $query = $db->select('peoples','name');
 //
 // SQL Statement: SELECT `name` FROM `peoples`;
@@ -57,7 +57,7 @@ $db = new YSPDO([
 // SQL Statement: SELECT DISTINCT `name`,`phone`,`date` FROM `peoples`;
 
 
-// ALIASES (It works only with array)
+// ALIASES
 //
 // $query = $db->select( 'peoples' ,[
 //   'AS' => [

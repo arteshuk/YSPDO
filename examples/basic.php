@@ -1,16 +1,18 @@
 <?php
 
 
-include "../dist/YSPDO.php";
+include __DIR__."/../dist/YSPDO.php";
 
 
 $db = new YSPDO([
-  'driver'    => 'mysql',
-  'host'      => 'localhost',
-  'database'  => 'generatedata',
-  'user'      => 'root',
-  'password'  => '4575621'
-]);
+  'mysql',
+  'host' => 'localhost',
+  'port' => 3306,
+  'dbname' => 'generatedata',
+  'charset' => 'utf8'
+  // 'prefix' => 'fix_'
+  // 'suffix' => '_fix'
+],'root','');
 
 
 $table = 'peoples';
@@ -18,12 +20,12 @@ $table = 'peoples';
 
 // Selection all columns
 //
-$query = $db->select( $table )->fetchAll();
+// $query = $db->select( $table )->fetchAll();
 
 
 // Selecting columns
 //
-// $query = $db->select( $table ,['name','email','phone'])->fetchAll();
+$query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 
 // Fetch
