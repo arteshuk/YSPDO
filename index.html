@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>YSPDO - PDO helper to manipulate dynamically database records using arrays</title>
+    <title>YSPDO by gabrieel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -27,21 +27,12 @@
 <h3>
 <a id="initialize-class" class="anchor" href="#initialize-class" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Initialize class</h3>
 
-<p>Without defining settings</p>
-
-<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">YSPDO</span>; <span class="pl-c">// Change the values of $settings variable in class</span></span></pre></div>
-
-<p>Defining settings</p>
-
 <div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$db</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">YSPDO</span>([</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>driver<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>mysql<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>host<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>port<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-c1">3306</span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>charset<span class="pl-pds">'</span></span>   <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>utf8<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>database<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>dbname<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>root<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>password<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span></span>
-<span class="pl-s1">]);</span></pre></div>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>mysql<span class="pl-pds">'</span></span>,  <span class="pl-c">// First driver | without to set key of this value</span></span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>host<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>port<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-c1">3306</span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>dbname<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>generatedata<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">],<span class="pl-s"><span class="pl-pds">'</span>root<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>);</span></pre></div>
 
 <h2>
 <a id="compare-pdo-and-yspdo-with-crud" class="anchor" href="#compare-pdo-and-yspdo-with-crud" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Compare <code>PDO</code> and <code>YSPDO</code> with <code>CRUD</code>
@@ -51,17 +42,15 @@
 <a id="start-connection" class="anchor" href="#start-connection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start connection</h4>
 
 <div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">// PDO</span></span>
-<span class="pl-s1"><span class="pl-smi">$pdo</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">PDO</span>(<span class="pl-s"><span class="pl-pds">'</span>DRIVER:host=HOST;dbname=DB_NAME<span class="pl-pds">'</span></span>, <span class="pl-c1">DB_USER</span>, <span class="pl-c1">DB_PASSWORD</span>);</span>
-<span class="pl-s1"><span class="pl-smi">$pdo</span><span class="pl-k">-&gt;</span>setAttribute(<span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">ATTR_ERRMODE</span>, <span class="pl-c1">PDO</span><span class="pl-k">::</span><span class="pl-c1">ERRMODE_EXCEPTION</span>);</span>
+<span class="pl-s1"><span class="pl-smi">$pdo</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">PDO</span>(<span class="pl-s"><span class="pl-pds">'</span>DRIVER:host=HOST;dbname=DB_NAME;port=PORT<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>DB_USER<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>DB_PASSWORD<span class="pl-pds">'</span></span>);</span>
 <span class="pl-s1"></span>
 <span class="pl-s1"><span class="pl-c">// YSPDO</span></span>
 <span class="pl-s1"><span class="pl-smi">$db</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">YSPDO</span>([</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>driver<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DRIVER<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>host<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>HOST<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>database<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_NAME<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>      <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_USER<span class="pl-pds">'</span></span>,</span>
-<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>password<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_PASSWORD<span class="pl-pds">'</span></span></span>
-<span class="pl-s1">]);</span></pre></div>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>DRIVER<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>host<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>HOST<span class="pl-pds">'</span></span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>port<span class="pl-pds">'</span></span>    <span class="pl-k">=&gt;</span> <span class="pl-c1">PORT</span>,</span>
+<span class="pl-s1">  <span class="pl-s"><span class="pl-pds">'</span>dbname<span class="pl-pds">'</span></span>  <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>DB_NAME<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">], <span class="pl-s"><span class="pl-pds">'</span>DB_USER<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>DB_PASSWORD<span class="pl-pds">'</span></span>);</span></pre></div>
 
 <h4>
 <a id="create" class="anchor" href="#create" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CREATE</h4>
@@ -418,12 +407,16 @@
 <h2>
 <a id="licence" class="anchor" href="#licence" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LICENCE</h2>
 
-<p><a href="https://github.com/gabrieel/YSPDO/blob/master/LICENCE.txt">MIT</a></p>
+<p><a href="/LICENCE.txt">MIT</a></p>
 
-<br />
       <footer class="site-footer">
-        <span class="site-footer-credits">Theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+        <span class="site-footer-owner"><a href="https://github.com/gabrieel/YSPDO">YSPDO</a> is maintained by <a href="https://github.com/gabrieel">gabrieel</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
+
     </section>
+
+  
   </body>
 </html>
