@@ -3,73 +3,35 @@ Class in PHP `YSPDO` is a `PDO` helper to manipulate dynamically database record
 ### Initialize class
 
 ```php
-$db = new YSPDO([
-  'mysql',  // First driver | without to set key of this value
+$yspdo = new YSPDO([
+  'mysql',  // Driver
   'host'    => 'localhost',
   'port'    => 3306,
   'dbname'  => 'generatedata'
 ],'root','');
 ```
-## Compare `PDO` and `YSPDO` with `CRUD`
-#### Start connection
-```php
-// PDO
-$pdo = new PDO('DRIVER:host=HOST;dbname=DB_NAME;port=PORT', 'DB_USER', 'DB_PASSWORD');
-
-// YSPDO
-$db = new YSPDO([
-  'DRIVER',
-  'host'    => 'HOST',
-  'port'    => PORT,
-  'dbname'  => 'DB_NAME'
-], 'DB_USER', 'DB_PASSWORD');
-```
+## CREATE | READ | UPDATE | DELETE
 #### CREATE
 ```php
-// PDO
-$stmt = $pdo->prepare('INSERT INTO `peoples` (`name`, `email`, `country`) VALUES (?, ?, ?)');
-$stmt->bindValue(1, 'Gabriel Almeida', PDO::PARAM_STR);
-$stmt->bindValue(2, 'gabrieel@email.com', PDO::PARAM_STR);
-$stmt->bindValue(3, 'Brazil', PDO::PARAM_STR);
-$stmt->execute();
-echo $stmt->lastInsertId();
-
-// YSPDO
-$stmt = $db->insert('peoples',[
+$stmt = $yspdo->insert('peoples',[
   'name'    => 'Gabriel Almeida',
   'email'   => 'gabrieel@email.com',
   'country' => 'Brazil'
 ]);
+
 echo $stmt->lastInsertId();
 ```
 #### READ
 ```php
-// PDO
-$stmt = $pdo->prepare('SELECT `name`,`email`,`address`,`company` FROM `peoples` WHERE id>=?');
-$stmt->bindValue(1, 100, PDO::PARAM_INT);
-$stmt->execute();
-
-print_r( $stmt->fetchAll(PDO::FETCH_COLUMN) );
-
-// YSPDO
-$stmt = $db->select('peoples',['name','email','address','company'],[
+$stmt = $yspdo->select('peoples',['name','email','address','company'],[
   'id{>=}' => 100
 ]);
 
 print_r( $stmt->fetchAll('COLUMN') );
-
 ```
 #### UPDATE
 ```php
-// PDO
-$stmt = $pdo->prepare('UPDATE `peoples` SET `phone`=?, `address`=? WHERE id=?');
-$stmt->bindValue(1, '(00) 0000-0000', PDO::PARAM_STR);
-$stmt->bindValue(2, '4129 Magna. Avenue', PDO::PARAM_STR);
-$stmt->bindValue(3, 100, PDO::PARAM_INT);
-$stmt->execute();
-
-// YSPDO
-$stmt = $db->update('peoples',[
+$stmt = $yspdo->update('peoples',[
   'phone' => '(00) 0000-0000',
   'address' => '4129 Magna. Avenue',
 ],[
@@ -78,46 +40,40 @@ $stmt = $db->update('peoples',[
 ```
 #### DELETE
 ```php
-// PDO
-$stmt = $pdo->prepare('DELETE FROM `peoples` WHERE id=?');
-$stmt->bindValue(1, 100, PDO::PARAM_INT);
-$stmt->execute();
-
-// YSPDO
-$stmt = $db->delete('peoples',[
+$stmt = $yspdo->delete('peoples',[
   'id' => 100
 ]);
 ```
-## SELECT
+## FUNCTION SELECT
 #### fetch
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'email' => 'commodo@sem.edu'
 ])->fetch();
 ```
 #### fetchAll
 ```php
-$db->select('peoples')->fetchAll();
+$yspdo->select('peoples')->fetchAll();
 ```
 #### fetch setting type of return
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'email' => 'commodo@sem.edu'
 ])->fetch('OBJ');
 ```
 
-#### fetch all setting type of return
+#### fetch all, defining type of return
 ```php
-$db->select('peoples')->fetchAll('OBJ');
+$yspdo->select('peoples')->fetchAll('OBJ');
 ```
 
 #### Selecting columns
 ```php
-$db->select('peoples',['name','email','phone'])->fetchAll();
+$yspdo->select('peoples',['name','email','phone'])->fetchAll();
 ```
 #### DISTINCT
 ```php
-$db->select('peoples',[
+$yspdo->select('peoples',[
     'DISTINCT' => 'name'
     // OR
     'DISTINCT' => ['name','phone','date']
@@ -126,7 +82,7 @@ $db->select('peoples',[
 
 #### ALIASES
 ```php
-$db->select('peoples',[
+$yspdo->select('peoples',[
     'AS' => [
         'name' => 'yourName',
         'date' => 'birthday',
@@ -137,54 +93,50 @@ $db->select('peoples',[
 
 #### Operators
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'id{>=}' => 100
 ])->fetchAll();
 ```
 
 #### rowCount
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'email' => 'dolor.sit@ametdiam.ca'
 ])->rowCount();
 ```
 #### ORDER BY
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'ORDER' => 'city'
-// OR
+    // OR
     'ORDER' => 'name DESC'
-// OR
+    // OR
     'ORDER' => ['name DESC','city ASC']
 ])->fetchAll();
 ```
 #### BETWEEN
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'BETWEEN' => [
         'id' => [1,25]
         // OR
         'name' => ['a','b']
-        // OR
-        'date' => ['05/04/1980','05/04/1990']
     ]
 ])->fetchAll();
 ```
 #### NOT BETWEEN
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     '!BETWEEN' => [
         'id' => [1,25]
         // OR
         'name' => ['a','b']
-        // OR
-        'date' => ['05/04/1980','05/04/1990']
     ]
 ])->fetchAll();
 ```
 #### LIKE
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'LIKE' => [
         'name' => 'g%'
     ]
@@ -192,7 +144,7 @@ $db->select('peoples','all',[
 ```
 #### NOT LIKE
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     '!LIKE' => [
         'name' => 'g%'
     ]
@@ -200,13 +152,13 @@ $db->select('peoples','all',[
 ```
 #### LIMIT
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'LIMIT' => 10
 ])->fetchAll()
 ```
 #### IN
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'IN' => [
         'city' => ['Acoz','Pietraroja','Martelange','Relegem']
     ]
@@ -214,7 +166,7 @@ $db->select('peoples','all',[
 ```
 #### NOT IN
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     '!IN' => [
         'city' => ['Acoz','Pietraroja','Martelange','Relegem']
     ]
@@ -222,7 +174,7 @@ $db->select('peoples','all',[
 ```
 #### Using IN | BETWEEN | NOT LIKE | ORDER BY
 ```php
-$db->select('peoples','all',[
+$yspdo->select('peoples','*',[
     'IN' => [
         'date' => ['02/11/1985','11/27/1997','09/24/1969','01/15/1985','09/12/1986']
     ],
@@ -237,53 +189,29 @@ $db->select('peoples','all',[
 ```
 ### CREATE DATABASE
 ```php
-$db->createDB('dbname');
+$yspdo->createDB('dbname');
 ```
 ### DELETE DATABASE
 ```php
-$db->deleteDB('dbname');
-```
-### CREATE TABLE
-```php
-$db->createTable('teste',[
-    'id' => [
-        'varchar',
-        255,
-        'AUTO_INCREMENT',
-        '!NULL'
-    ],
-    'email' => [
-        'varchar',
-        100,
-        '!NULL',
-        'COMMENT' => 'Comment row'
-    ],
-    'PRIMARY KEY' => ['id']
-],[
-    'ENGINE' => 'MyISAM',
-    'DEFAULT CHARSET' => 'utf8',
-    'COLLATE' => 'utf8_bin',
-    'STATS_PERSISTENT' => 0,
-    'COMMENT' => 'comment'
-]);
+$yspdo->deleteDB('dbname');
 ```
 ### INSERT INTO
 ```php
-$db->insert('peoples',[
-    'id' => 301,
-    'name' => 'Gabriel',
-    'phone' => '+0000000000',
-    'date' => '00/00/0000',
-    'email' => 'name@test.com',
-    'address' => 'Street teste address nº 1000 Av test',
-    'city' => 'Araguaina',
-    'country' => 'Brazil',
-    'company' => 'No Company',
+$yspdo->insert('peoples',[
+    'id'        => 301,
+    'name'      => 'Gabriel',
+    'phone'     => '+0000000000',
+    'date'      => '00/00/0000',
+    'email'     => 'name@test.com',
+    'address'   => 'Street teste address nº 1000 Av test',
+    'city'      => 'an_city',
+    'country'   => 'Brazil',
+    'company'   => 'No Company',
 ]);
 ```
 ### UPDATE
 ```php
-$db->update('peoples',[
+$yspdo->update('peoples',[
     'phone' => '+1111111111',
     'date' => '11/11/1111',
     'email' => 'name@server.co',
@@ -292,54 +220,291 @@ $db->update('peoples',[
 ```
 ### DELETE
 ```php
-$db->delete('peoples',[
+$yspdo->delete('peoples',[
     'id' => 301
+]);
+```
+### COUNT
+```php
+$yspdo->count('peoples','*',[
+    'id{>}' => 125
 ]);
 ```
 ### DELETE TABLE
 ```php
-$db->deleteTable('peoples');
+$yspdo->deleteTable('peoples');
 ```
 ### TRUNCATE TABLE
 ```php
-$db->truncate('peoples');
+$yspdo->truncate('peoples');
 ```
+***
+### Attention
+#### Do not use the (select|insert|update|delete|count|prepare) functions like this:
+```php
+$statement1 = $yspdo->(select|insert|update|delete|count|prepare)('table_one' ...);
+$statement2 = $yspdo->(select|insert|update|delete|count|prepare)('table_two' ...);
+
+print_r( $statement1->fetchAll() );
+print_r( $statement2->fetchAll() );
+
+// YSPDO will replace the query from $statement1 with $statement2
+```
+***
 ### Available Functions
 ```php
+/**
+* PDO::getAvailableDrivers
+*
+* @return array
+*/
 ->getAvailableDrivers()
+/**
+* PDO::commit
+*
+* @return boolean
+*/
 ->commit()
+/**
+* PDO::beginTransaction
+*
+* @return boolean
+*/
 ->beginTransaction()
+/**
+* PDO::rollBack
+*
+* @return boolean
+*/
 ->rollBack()
+/**
+* PDO::inTransaction
+*
+* @return boolean
+*/
 ->inTransaction()
-->exec()
-->quote()
+/**
+* PDO::exec
+*
+* @param string $statement
+* @return integer|boolean
+*/
+->exec( string $statement )
+/**
+* PDO::quote
+*
+* @param string $string
+* @param int $parameter_type
+* @return string
+*/
+->quote($string [, $parameter_type=\PDO::PARAM_STR])
+/**
+* PDO::errorCode
+*
+* @return mixed
+*/
 ->errorCode()
+/**
+* PDO::errorInfo
+*
+* @return array
+*/
 ->errorInfo()
-->query()
+/**
+* Query Statement
+*
+* @param string $sql
+* @param array $parameters
+* @return YSPDO
+*/
+->query(string $sql [, array $parameters=[]])
+/**
+* Row count
+*
+* @return integer
+*/
 ->rowCount()
+/**
+* Last insert id
+*
+* @return integer
+*/
 ->lastInsertId()
-->prepare()
-->bindColumn()
-->bindParam()
-->bindValue()
+/**
+* Prepare Statement
+*
+* @param string $sql
+* @return YSPDO
+*/
+->prepare(string $sql)
+/**
+* bindColumn Statement
+*
+* @param mixed $column
+* @param mixed $param
+* @param int $type
+* @param int $maxlen
+* @param mixed $driverdata
+* @return YSPDO
+*/
+->bindColumn(mixed $column , mixed &$param [, int $type [, int $maxlen [, mixed $driverdata ]]])
+/**
+* bindParam Statement
+*
+* @param mixed $parameter
+* @param mixed $value
+* @param int $type
+* @param int $length
+* @return YSPDO
+*/
+->bindParam(mixed $parameter , mixed &$variable [, int $data_type = PDO::PARAM_STR [, int $length [, mixed $driver_options ]]])
+/**
+* bindValue Statement
+*
+* @param mixed $parameter
+* @param mixed $value
+* @param int $type
+* @return YSPDO
+*/
+->bindValue(mixed $parameter , mixed $value [, int $data_type = PDO::PARAM_STR ])
+/**
+* closeCursor Statement
+*
+* @return boolean
+*/
 ->closeCursor()
+/**
+* columnCount Statement
+*
+* @return int
+*/
 ->columnCount()
-->execute()
-->fetch()
-->fetchAll()
-->fetchColumn()
-->fetchObject()
-->getAttribute()
-->setAttribute()
-->select()
-->insert()
-->update()
-->delete()
-->createDB()
-->deleteDB()
-->createTable()
-->deleteTable()
-->truncate()
+/**
+* execure Statement
+*
+* @param array $parameters
+* @return boolean
+*/
+->execute([array $parameters=[]])
+/**
+* fetch Statement
+*
+* @param string $style
+* @param int $cursor_orientation
+* @param int $offset
+* @return mixed
+*/
+->fetch([ string $style [, int $cursor_orientation = PDO::FETCH_ORI_NEXT [, int $cursor_offset = 0 ]]])
+/**
+* fetchAll Statement
+*
+* @param string $style
+* @param mixed $argument
+* @param array $ctor_args
+* @return mixed
+*/
+->fetchAll([ string $style [, mixed $argument = \PDO::FETCH_COLUMN [, array $ctor_args = [] ]]])
+/**
+* fetchColumn Statement
+*
+* @param int $column_number
+* @return midex
+*/
+->fetchColumn([int $column_number = 0])
+/**
+* fetchObject Statement
+*
+* @param string $class_name
+* @param array $ctor_args
+* @return midex
+*/
+->fetchObject([ string $class_name = "stdClass" [, array $ctor_args = [] ]])
+/**
+* getAttribute Statement
+*
+* @param int $attribute
+* @return mixed
+*/
+->getAttribute(int $attribute)
+/**
+* setAttribute Statement
+*
+* @param int $attribute
+* @param mixed $value
+* @return boolean
+*/
+->setAttribute(int $attribute , mixed $value)
+/**
+* SELECT
+*
+* @param string       $table
+* @param string|array $columns
+* @param array|null   $where
+* @return YSPDO
+*/
+->select(string $table [,$columns='*' [,$where=null]])
+/**
+* INSERT
+*
+* @param string $table
+* @param array  $data
+* @return YSPDO
+*/
+->insert(string $table, array $data)
+/**
+* UPDATE
+*
+* @param string $table
+* @param array  $data
+* @param array|null  $where
+* @return YSPDO
+*/
+->update(string $table, array $data [, $where=null])
+/**
+* DELETE
+*
+* @param string $table
+* @param array  $where
+* @return YSPDO
+*/
+->delete(string $table [, array $where=''])
+/**
+*  COUNT
+*
+* @param string $table
+* @param string|array $columns
+* @param array $where
+* @return string
+*/
+->count(string $table [, $columns = '*' [, array $where = []]])
+/**
+* Create Database
+*
+* @param string $s Database name
+* @return boolean
+*/
+->createDB(string $s)
+/**
+* Drop Database
+*
+* @param string $s Database name
+* @return boolean
+*/
+->deleteDB(string $s)
+/**
+* Drop Table
+*
+* @param string $s Table name
+* @return boolean
+*/
+->deleteTable(string $s)
+/**
+* Truncate Table
+*
+* @param string $s Table name
+* @return boolean
+*/
+->truncate(string $s)
 ```
 ***
 ## REQUIREMENTS

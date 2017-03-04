@@ -1,13 +1,10 @@
 <?php die('see the source of this file');
 
 
-include __DIR__."/../dist/YSPDO.php";
-
-
 // CUBRID
 $db = new YSPDO([
   'cubrid',
-  'dbname' => 'generatedata',
+  'dbname' => 'demodb',
   'host' => '192.168.0.10',
   'port' => 30000
 ],'username','password');
@@ -68,7 +65,7 @@ $db = new YSPDO([
 
 
 
-// MySQL
+// MySQL (support functions: select|insert|update|delete|count)
 $db = new YSPDO([
   'mysql',
   'host' => 'localhost',
@@ -94,10 +91,10 @@ $db = new YSPDO([
 $db = new YSPDO([
   'oci',
 
-  // Connect to a database defined in tnsnames.ora
+  // Connect to a database defined in tnsnames.ora // DSN oci:dbname=mydb
   'dbname' => 'mydb',
 
-  // or Connect using the Oracle Instant Client
+  // or Connect using the Oracle Instant Client // DSN oci:dbname=//localhost:1521/mydb
   'dbname' => '//localhost:1521/mydb'
 
 ]);
@@ -144,4 +141,4 @@ $db = new YSPDO([
 
 
 
-// Only tested on drivers MySQL and SQLite
+// Only tested on driver MySQL

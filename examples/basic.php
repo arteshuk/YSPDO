@@ -7,12 +7,11 @@ include __DIR__."/../dist/YSPDO.php";
 $db = new YSPDO([
   'mysql',
   'host' => 'localhost',
-  'port' => 3306,
   'dbname' => 'generatedata',
-  'charset' => 'utf8'
-  // 'prefix' => 'fix_'
-  // 'suffix' => '_fix'
+  'port' => 3306,
+  'charset' => 'utf8',
 ],'root','');
+
 
 
 $table = 'peoples';
@@ -30,7 +29,7 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // Fetch
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'email' => 'commodo@sem.edu'
 // ])->fetch();
 
@@ -40,7 +39,7 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 //
 // Fetch, with type of return
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'email' => 'commodo@sem.edu'
 // ])->fetch('OBJ');
 //
@@ -71,7 +70,7 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // Operators
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'id{>=}' => 100
 // ])->fetchAll();
 
@@ -79,14 +78,14 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // Row count
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'email' => 'dolor.sit@ametdiam.ca'
 // ])->rowCount();
 
 
 // ORDER BY
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   // 'ORDER' => 'city'
 //   // OR
 //   // 'ORDER' => 'name DESC'
@@ -97,33 +96,29 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // NOT BETWEEN
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   '!BETWEEN' => [
 //     'id' => [1,275]
 //     // OR
 //     // 'name' => ['a','b']
-//     // OR
-//     // 'date' => ['05/04/1980','05/04/1990']
 //   ]
 // ])->fetchAll();
 
 
 // BETWEEN
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'BETWEEN' => [
 //     // 'id' => [1,25]
 //     // OR
 //     // 'name' => ['a','b']
-//     // OR
-//     // 'date' => ['05/04/1980','05/04/1990']
 //   ]
 // ])->fetchAll();
 
 
 // NOT LIKE
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   '!LIKE' => [
 //     'name' => 'g%'
 //   ]
@@ -131,7 +126,7 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // LIKE
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'LIKE' => [
 //     'city' => '%es%'
 //   ]
@@ -140,14 +135,14 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // LIMIT
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'LIMIT' => 10
 // ])->fetchAll();
 
 
 // IN
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'IN' => [
 //     'city' => ['Acoz','Pietraroja','Martelange','Relegem']
 //   ]
@@ -155,7 +150,7 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // NOT IN
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   '!IN' => [
 //     'city' => ['Acoz','Pietraroja','Martelange','Relegem']
 //   ]
@@ -165,7 +160,7 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 
 // IN | BETWEEN | NOT LIKE | ORDER BY
 //
-// $query = $db->select( $table ,'all',[
+// $query = $db->select( $table ,'*',[
 //   'IN' => [
 //     'city' => ['Zeist','Stafford','Remagne','Istres','Warwick','Urbe','Chatillon','Rawalpindi']
 //   ],
@@ -187,31 +182,6 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 // DELETE DATABASE
 //
 // $query = $db->deleteDB('dbname');
-
-
-// CREATE TABLE
-//
-// $query = $db->createTable('teste',[
-//   'id' => [
-//     'varchar',
-//     255,
-//     'AUTO_INCREMENT',
-//     '!NULL'
-//   ],
-//   'email' => [
-//     'varchar',
-//     100,
-//     '!NULL',
-//     'COMMENT' => 'Comment row'
-//   ],
-//   'PRIMARY KEY' => ['id']
-// ],[
-//   'ENGINE' => 'MyISAM',
-//   'DEFAULT CHARSET' => 'utf8',
-//   'COLLATE' => 'utf8_bin',
-//   'STATS_PERSISTENT' => 0,
-//   'COMMENT' => 'comment'
-// ]);
 
 
 // INSERT INTO
@@ -242,19 +212,36 @@ $query = $db->select( $table ,['name','email','phone'])->fetchAll();
 //
 // ],[ 'id' => 301 ]);
 
+
 // DELETE
 //
 // $query = $db->delete( $table ,[
 //   'id' => 301
 // ]);
 //
-// Delete all data
-// $query = $db->delete( $table , '*');
+// Delete all data (Use ->rowCount() to know how many rows have been affected)
+// $query = $db->delete( $table ); 
+// OR 
+// $query = $db->delete( $table , '*' );
+
+
+// COUNT
+// 
+// $query = $db->count( $table, '*', [
+//   // 'LIKE' => [
+//   //   'address' => '%Avenue%'
+//   // ]
+//   // 
+//   // 'id{>}' => 275
+// ]);
+// 
+// var_dump( $query );
 
 
 // DELETE TABLE
 //
 // $query = $db->deleteTable( $table );
+
 
 // TRUNCATE TABLE
 //

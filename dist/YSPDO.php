@@ -4,11 +4,16 @@
  * YSPDO - Manipulate table records of database with PDO using arrays
  *
  * @author  Gabriel Almeida - gabrieel@email.com
- * @version 1.0.1
+ * @version 1.1.0
  * @license MIT
  */
 
 class YSPDO {
+
+  /**
+  * @var $driver
+  */
+  private $driver = '';
 
   /**
   * @var $dsn
@@ -16,22 +21,20 @@ class YSPDO {
   private $dsn = null;
 
   /**
-  * @var $connection
+  * @var $conn
   */
-  private $connection = null;
+  private $conn = null;
 
   /**
   * @var $query
   */
   private $query   = null;
+  
   /**
-  * @var $settings
+  * @var $rw_operators
   */
-  private $settings = [
-                        'driver'    => '',
-                        'prefix'    => '',
-                        'suffix'    => ''
-                      ];
+  private $rw_operators = ['ORDER','LIMIT','IN','!IN',' LIKE','!LIKE','BETWEEN','!BETWEEN'];
+
 
   /**
   * Method magic __construct
@@ -43,15 +46,14 @@ class YSPDO {
   * @return void
   */
   public function __construct(array $dsn, string $username = null, string $password = null, array $options = []){
-    $this->settings = (object) $this->settings;
-    $this->_buildDSN($dsn);
+    $this->buildDSN($dsn);
     try{
-      if(!in_array($this->settings->driver,$this->getAvailableDrivers())){
-        die('YSPDO error: '.strtoupper($this->settings->driver).' driver unavailable');
+      if(!in_array($this->driver,$this->getAvailableDrivers())){
+        die('YSPDO error: '.strtoupper($this->driver).' driver unavailable');
       }
-      $this->connection = new \PDO( $this->dsn , $username, $password, $options );
+      $this->conn = new \PDO( $this->dsn , $username, $password, $options );
     }catch (PDOException $e){
-      $this->_PDOException($e);
+      $this->err_exception([0,(int) $e->getCode(),$e->getMessage()]);
     }
   }
 
@@ -61,8 +63,8 @@ class YSPDO {
   * @return void
   */
   public function __destruct(){
-    $this->connection   = null;
-    $this->query        = null;
+    $this->conn   = null;
+    $this->query  = null;
   }
 
   /**
@@ -80,7 +82,7 @@ class YSPDO {
   * @return boolean
   */
   public function commit() : bool {
-    return $this->connection->commit();
+    return $this->conn->commit();
   }
 
   /**
@@ -89,7 +91,7 @@ class YSPDO {
   * @return boolean
   */
   public function beginTransaction() : bool {
-    return $this->connection->beginTransaction();
+    return $this->conn->beginTransaction();
   }
 
   /**
@@ -98,7 +100,7 @@ class YSPDO {
   * @return boolean
   */
   public function rollBack() : bool {
-    return $this->connection->rollBack();
+    return $this->conn->rollBack();
   }
 
   /**
@@ -107,7 +109,7 @@ class YSPDO {
   * @return boolean
   */
   public function inTransaction() : bool {
-    return $this->connection->inTransaction();
+    return $this->conn->inTransaction();
   }
 
   /**
@@ -116,8 +118,8 @@ class YSPDO {
   * @param string $statement
   * @return integer|boolean
   */
-  public function exec($statement) {
-    return $this->connection->exec( $statement );
+  public function exec(string $statement) {
+    return $this->conn->exec( $statement );
   }
 
   /**
@@ -128,7 +130,7 @@ class YSPDO {
   * @return string
   */
   public function quote($string, $parameter_type=\PDO::PARAM_STR) : string {
-    return $this->connection->quote( $string , $parameter_type );
+    return $this->conn->quote( $string , $parameter_type );
   }
 
   /**
@@ -137,7 +139,7 @@ class YSPDO {
   * @return mixed
   */
   public function errorCode() {
-    return $this->connection->errorCode();
+    return $this->query->errorCode();
   }
 
   /**
@@ -146,23 +148,20 @@ class YSPDO {
   * @return array
   */
   public function errorInfo() : array {
-    return $this->connection->errorInfo();
+    return $this->query->errorInfo();
   }
 
   /**
   * Query Statement
   *
   * @param string $sql
-  * @param array [optional] $parameters
-  * @return array
+  * @param array $parameters
+  * @return YSPDO
   */
-  public function query($sql, $parameters=null){
-    try {
-      $this->query = $this->connection->prepare($sql);
-      return $this->execute($parameters);
-    }catch(PDOException $e) {
-      $this->_PDOException($e);
-    }
+  public function query(string $sql, array $parameters=[]){
+    $this->query = $this->conn->prepare($sql);
+    if(!$this->execute($parameters)) $this->err_exception();      
+    return $this;
   }
 
 
@@ -181,17 +180,17 @@ class YSPDO {
   * @return integer
   */
   public function lastInsertId() : int {
-    return $this->connection->lastInsertId();
+    return $this->conn->lastInsertId();
   }
 
   /**
   * Prepare Statement
   *
   * @param string $sql
-  * @return class
+  * @return YSPDO
   */
-  public function prepare($sql){
-    $this->query = $this->connection->prepare( $sql );
+  public function prepare(string $sql){
+    $this->query = $this->conn->prepare( $sql );
     return $this;
   }
 
@@ -203,9 +202,9 @@ class YSPDO {
   * @param int $type
   * @param int $maxlen
   * @param mixed $driverdata
-  * @return class
+  * @return YSPDO
   */
-  public function bindColumn($column, $param, $type=\PDO::FETCH_ASSOC, $maxlen=0, $driverdata=null) : bool {
+  public function bindColumn($column, $param, $type=\PDO::FETCH_ASSOC, $maxlen=0, $driverdata=null) {
     $this->query->bindColumn($column, $param, $type, $maxlen, $driverdata);
     return $this;
   }
@@ -217,7 +216,7 @@ class YSPDO {
   * @param mixed $value
   * @param int $type
   * @param int $length
-  * @return class
+  * @return YSPDO
   */
   public function bindParam($parameter,$value,$type=null,$length=null){
     $this->query->bindParam($parameter, $value, $type, $length);
@@ -230,7 +229,7 @@ class YSPDO {
   * @param mixed $parameter
   * @param mixed $value
   * @param int $type
-  * @return class
+  * @return YSPDO
   */
   public function bindValue($parameter,$value,$type=null){
     $this->query->bindValue($parameter,$value,$type);
@@ -256,17 +255,17 @@ class YSPDO {
   }
 
   /**
-  * Execure Statement
+  * execure Statement
   *
   * @param array $parameters
   * @return boolean
   */
-  public function execute($parameters=null) : bool {
-    return $this->query->execute($parameters);
+  public function execute(array $parameters=[]) : bool {
+    return $this->query->execute( ( ( count( $parameters ) > 0 ) ? $parameters : null ) );
   }
 
   /**
-  * Fetch Statement
+  * fetch Statement
   *
   * @param string $style
   * @param int $cursor_orientation
@@ -278,7 +277,7 @@ class YSPDO {
   }
 
   /**
-  * Fetch all Statement
+  * fetchAll Statement
   *
   * @param string $style
   * @param mixed $argument
@@ -290,17 +289,17 @@ class YSPDO {
   }
 
   /**
-  * Fetch column Statement
+  * fetchColumn Statement
   *
   * @param int $column_number
   * @return midex
   */
-  public function fetchColumn($column_number=0){
+  public function fetchColumn(int $column_number = 0){
     return ( $this->query != null ) ? $this->query->fetchColumn( $column_number ) : false;
   }
 
   /**
-  * Fetch object Statement
+  * fetchObject Statement
   *
   * @param string $class_name
   * @param array $ctor_args
@@ -316,7 +315,7 @@ class YSPDO {
   * @param int $attribute
   * @return mixed
   */
-  public function getAttribute($attribute){
+  public function getAttribute(int $attribute){
     return $this->query->getAttribute( $attribute );
   }
 
@@ -327,114 +326,129 @@ class YSPDO {
   * @param mixed $value
   * @return boolean
   */
-  public function setAttribute($attribute, $value) : bool {
+  public function setAttribute(int $attribute, $value) : bool {
     return $this->query->setAttribute( $attribute , $value );
   }
 
   /**
-  * Select Statement
+  * SELECT
   *
   * @param string       $table
   * @param string|array $columns
   * @param array|null   $where
-  * @return class
+  * @return YSPDO
   */
-  public function select($table,$columns='*',$where=null){
+  public function select(string $table,$columns='*',$where=null){
     $sql = $this->cSQL('select', $table, $columns, $where);
-    try {
-      $this->query = $this->connection->prepare( $sql );
-      if(is_array($where)){
-        $i=1;
-        foreach ($where as $key => $val){
-          if(!in_array($key,['ORDER','LIMIT','IN','!IN','LIKE','!LIKE','BETWEEN','!BETWEEN'])){
-            $this->query->bindValue($i, $val, $this->_getTypeVar( $val ));
-            ++$i;
-          }
-        }
-      }
-      $this->execute();
-    }catch(PDOException $e) {
-      $this->_PDOException($e);
-    }
-    return $this;
-  }
-
-  /**
-  * Insert Statement
-  *
-  * @param string $table
-  * @param array  $data
-  * @return class
-  */
-  public function insert($table,$data){
-    $sql = $this->cSQL('insert',$table,$data,null);
-    try {
-      $this->query = $this->connection->prepare($sql);
+    $this->query = $this->conn->prepare( $sql );
+    if(is_array($where)){
       $i=1;
-      foreach($data as $key => $val) {
-        $this->query->bindValue($i, $val, $this->_getTypeVar($val));
-        ++$i;
-      }
-      $this->execute();
-    }catch(PDOException $e) {
-      $this->_PDOException($e);
-    }
-    return $this;
-  }
-
-  /**
-  * Update Statement
-  *
-  * @param string $table
-  * @param array  $data
-  * @param array  $where
-  * @return class
-  */
-  public function update($table,$data,$where=null){
-    $sql = $this->cSQL('update',$table,$data,$where);
-    try {
-      $this->query = $this->connection->prepare($sql);
-      $i=1;
-      foreach( $data as $key => $val){
-        if(!empty($val)){
-            $this->query->bindValue($i, $val, $this->_getTypeVar($val));
-            ++$i;
-        }
-      }
-      if(is_array($where)){
-        foreach( $where as $key => $val ) {
-          $this->query->bindValue($i, $val, $this->_getTypeVar($val));
+      foreach ($where as $key => $val){
+        if(!in_array($key, $this->rw_operators )){
+          $this->query->bindValue($i, $val, $this->_getTypeVar( $val ));
           ++$i;
         }
       }
-      $this->execute();
-    }catch(PDOException $e) {
-      $this->_PDOException($e);
     }
+    if(!$this->execute()) $this->err_exception();      
     return $this;
   }
 
   /**
-  * Delete Statement
+  * INSERT
   *
   * @param string $table
-  * @param array  $where
-  * @return class
+  * @param array  $data
+  * @return YSPDO
   */
-  public function delete($table,$where){
+  public function insert(string $table, array $data){
+    $sql = $this->cSQL('insert',$table,$data,null);
+    
+    $this->query = $this->conn->prepare($sql);
+    $i=1;
+    foreach($data as $key => $val) {
+      $this->query->bindValue($i, $val, $this->_getTypeVar($val));
+      ++$i;
+    }
+    
+    if(!$this->execute()) $this->err_exception();
+    
+    return $this;
+  }
+
+  /**
+  * UPDATE
+  *
+  * @param string $table
+  * @param array  $data
+  * @param array|null  $where
+  * @return YSPDO
+  */
+  public function update(string $table, array $data, $where=null){
+    $sql = $this->cSQL('update',$table,$data,$where);
+    $this->query = $this->conn->prepare($sql);
+    $i=1;
+    foreach( $data as $key => $val){
+      if(!empty($val)){
+        $this->query->bindValue($i, $val, $this->_getTypeVar($val));
+        ++$i;
+      }
+    }
+    if(is_array($where)){
+      foreach( $where as $key => $val ) {
+        $this->query->bindValue($i, $val, $this->_getTypeVar($val));
+        ++$i;
+      }
+    }
+    if(!$this->execute()) $this->err_exception();
+    return $this;
+  }
+
+  /**
+  * DELETE
+  *
+  * @param string $table
+  * @param string|array  $where
+  * @return YSPDO
+  */
+  public function delete(string $table, $where=''){
     $sql = $this->cSQL('delete',$table,null,$where);
-    try {
-      $this->query = $this->connection->prepare($sql);
+    $this->query = $this->conn->prepare($sql);
+    if(is_array($where) && count($where) > 0){
       $i=1;
       foreach($where as $key => $val) {
         $this->query->bindValue($i, $val, $this->_getTypeVar($val));
         ++$i;
       }
-      $this->execute();
-    }catch(PDOException $e) {
-      $this->_PDOException($e);
     }
+    if(!$this->execute()) $this->err_exception();      
     return $this;
+  }
+
+  /**
+  *  COUNT
+  *
+  * @param string $table
+  * @param string|array $columns
+  * @param array $where
+  * @return string
+  */
+  public function count(string $table, $columns = '*', array $where = []){
+    $sql = $this->cSQL('count',$table,$columns,$where);
+    $this->query = $this->conn->prepare($sql);    
+    if(count($where) > 0){
+      $i=1;
+      foreach ($where as $key => $val){
+        if(!in_array($key, $this->rw_operators )){
+          $this->query->bindValue($i, $val, $this->_getTypeVar( $val ));
+          ++$i;
+        }
+      }
+      if(!$this->execute()) $this->err_exception();      
+      return $this->fetchColumn();
+    }else{
+      return $this->query( $sql )->fetchColumn();
+    }
   }
 
   /**
@@ -444,7 +458,7 @@ class YSPDO {
   * @return boolean
   */
   public function createDB(string $s) : bool {
-    return $this->query("CREATE DATABASE {$s};");
+    return ($this->conn->query("CREATE DATABASE {$s};") !== false ) ? true : false;
   }
 
   /**
@@ -454,102 +468,7 @@ class YSPDO {
   * @return boolean
   */
   public function deleteDB(string $s) : bool {
-    return $this->query("DROP DATABASE {$s};");
-  }
-
-  /**
-  * Create Table
-  *
-  * @param string $table
-  * @param array $rows
-  * @param array $settings
-  * @return boolean
-  */
-  public function createTable($table,$rows,$settings){
-    $sql = "CREATE TABLE {$this->_backtick($table)} (\n\t";
-    foreach ($rows as $row_k => $row_v) {
-      switch ($row_k) {
-        case 'PRIMARY KEY':
-          $st = " PRIMARY KEY (";
-          foreach ($row_v as $sv) {
-            $st .= $this->_backtick($sv).',';
-          }
-          $sql .= rtrim($st,',').')';
-        break;
-        case 'KEY': case 'UNIQUE KEY':
-          $sql .= ' ' . $row_k . ' ' . $this->_backtick($row_v) . ' ('.$this->_backtick($row_v).')';
-        break;
-        default:
-        $sql .= $this->_backtick($row_k);
-        foreach ($row_v as $k => $v) {
-          if(is_numeric($k)){
-            if($k == 0){
-              if($v != null){
-                $sql .= ' ' . $v;
-              }
-            }elseif ($k == 1) {
-              if($v != null){
-                $sql .= '('.$v.')';
-              }
-            }else{
-              switch ($v) {
-                case 'NULL': case '!NULL':
-                  $sql .= ( substr( $v , 0 , 1 ) == '!' ) ? ' NOT NULL' : ' DEFAULT NULL';
-                break;
-                case 'unsigned': case 'AUTO_INCREMENT':
-                  $sql .= ' '.$v;
-                break;
-              }
-            }
-          }else{
-            switch ($k) {
-              case 'DEFAULT':
-                if(in_array($v,['CURRENT_TIMESTAMP'])){
-                  $sql .= ' DEFAULT '.$v;
-                }else{
-                  $sql .= ' DEFAULT \''.$v.'\'';
-                }
-              break;
-              case 'COLLATE':
-              case 'CHARACTER SET':
-                $sql .= ' '.$k.' '.$v;
-              break;
-              case 'COMMENT':
-                $sql .= ' COMMENT \''.$v.'\'';
-              break;
-              case 'set':
-              case 'enum':
-                $st = " {$k}(";
-                foreach ($v as $sv) {
-                  $st .= '\''.$sv.'\',';
-                }
-                $sql .= rtrim($st,',').')';
-              break;
-            }
-          }
-        }
-        break;
-      }
-      $sql .= ",\n\t";
-    }
-    $sql = rtrim($sql,",\n\t");
-    $sql .= "\n)";
-    foreach ($settings as $k => $v) {
-      switch ( $k ) {
-        case 'ENGINE': case 'COLLATE': case 'DEFAULT CHARSE': case 'STATS_PERSISTENT': case 'AUTO_INCREMENT':
-          $sql .= ' '.$k.'='.$v;
-        break;
-        case 'COMMENT':
-          $sql .= ' COMMENT=\''.$v.'\'';
-        break;
-      }
-    }
-    $sql .= ';';
-    try {
-      return $this->exec( $sql );
-    }catch(PDOException $e) {
-      $this->_PDOException($e);
-    }
+    return ($this->conn->query("DROP DATABASE {$s};") !== false ) ? true : false;
   }
 
   /**
@@ -558,8 +477,8 @@ class YSPDO {
   * @param string $s Table name
   * @return boolean
   */
-  public function deleteTable(string $s){
-    return $this->query("DROP TABLE {$s};");
+  public function deleteTable(string $s) : bool {
+    return ($this->conn->query("DROP TABLE {$s};") !== false ) ? true : false;
   }
 
   /**
@@ -568,12 +487,12 @@ class YSPDO {
   * @param string $s Table name
   * @return boolean
   */
-  public function truncate(string $s){
-    return $this->query("TRUNCATE TABLE {$s};");
+  public function truncate(string $s) : bool {
+    return ($this->conn->query("TRUNCATE TABLE {$s};") !== false ) ? true : false;
   }
 
   /**
-  * cSQL - Create SQL Statement
+  * Create SQL Statement
   *
   * @param string $method
   * @param string $table
@@ -592,7 +511,7 @@ class YSPDO {
                 $n .= 'DISTINCT ';
                 if(is_array($value)){
                   foreach ($value as $v) {
-                    $n .= $this->_backtick( $v ).',';
+                    $n .= $this->backtick( $v ).',';
                   }
                   $n = rtrim($n,',');
                 }else{
@@ -600,7 +519,7 @@ class YSPDO {
                 }
               }elseif ($key === 'AS') {
                 foreach ($value as $_key => $_val) {
-                  $data = [$this->_backtick( $_key ),$this->_backtick( $_val )];
+                  $data = [$this->backtick( $_key ),$this->backtick( $_val )];
                   $n .= $data[0].' AS '.$data[1].',';
                 }
                 $n = rtrim($n,',');
@@ -608,82 +527,44 @@ class YSPDO {
                 if(is_string( $key )){
                   $n .= ' '.$key.' '.$value.',';
                 }else{
-                  $n .= $this->_backtick( $value ).',';
+                  $n .= $this->backtick( $value ).',';
                 }
               }
             }
             $n = rtrim($n,',');
           }else{
-            if(strtolower( $data ) == 'all' || $data == '*'){
-              $n = '*';
+            if($data != '*'){
+              $n = ( preg_match("/[[\s,`]/", $data) === 1 ) ? $data : $this->backtick( $data );
             }else{
-              $n = ( preg_match("/[[\s,`]+/", $data) === 1 ) ? $data : $this->_backtick( $data );
+              $n = '*';
             }
           }
-          $sql = 'SELECT '.$n.' FROM '.$this->_backtick( $table , false ) . $this->_cWhere( $where );
+          $sql = 'SELECT '.$n.' FROM '.$this->backtick( $table ) . $this->cWHERE( $where );
         break;
         case 'insert':
-          $sql = 'INSERT INTO '.$this->_backtick( $table , false ).' ';
-          $v = '';
-          $n = '';
-          foreach( $data as $key => $val ){
-            $n .= $this->_backtick( $key ).', ';
-            $v .= '?, ';
-          }
-          $sql .= "(". rtrim($n, ', ') .") VALUES (". rtrim($v, ', ') .");";
+          $keys = join(',',array_map(function($n){ return $this->backtick( $n ); }, array_keys($data)));
+          $qo = rtrim(str_repeat('?,',count($data)), ',');
+          $sql = "INSERT INTO {$this->backtick( $table )} ({$keys}) VALUES ({$qo});";
+          unset($keys,$qo);
         break;
         case 'update':
-          $sql = 'UPDATE '.$this->_backtick( $table , false ).' SET ';
-          foreach( $data as $key => $val ){
-              if(!empty($val)) $sql .= $this->_backtick( $key ).'=?, ';
-          }
-          $sql = rtrim($sql, ', ') . $this->_cWhere( $where );
+          $data = join(',',array_map(function($n){ return $this->backtick( $n ) . '=?'; }, array_keys($data)));
+          $sql = "UPDATE {$this->backtick( $table )} SET {$data} " . $this->cWHERE( $where );
         break;
         case 'delete':
-          if($where === '*' || (is_string($where) && strtolower($where) == 'all')){
-            $sql = 'DELETE * FROM ' . $this->_backtick( $table , false );
+          $sql = "DELETE" . ((($where == '*') ? ' * ' : ' ' )) . "FROM {$this->backtick( $table )}"  . ((is_array($where) && count($where) > 0) ? ' ' . $this->cWHERE( $where ) : ';');
+        break;
+        case 'count':
+          if(is_array($data)){
+            $data = join(',', array_map(function($n){ return $this->backtick($n); },$data));
           }else{
-            $sql = 'DELETE FROM ' . $this->_backtick( $table , false ) . $this->_cWhere( $where );
+            $data = ($data=='*') ? $data : $this->backtick($data);
           }
+          $sql = "SELECT COUNT({$data}) FROM {$this->backtick($table)}" . ((count($where) > 0) ? ' ' . $this->cWHERE( $where ) : ';');
         break;
       }
+    unset($method,$table,$data,$where);
     return $sql;
-  }
-
-
-  /**
-  * Add backtick||brackets on string
-  *
-  * @param string $s
-  * @param boolean $ps
-  * @return string
-  */
-  private function _backtick($s,$ps=true){
-    if( preg_match( '/\[(.*)\]/' , $s ) == 0 ){
-      if( strpos( $s , '.' ) !== false ){
-        $s = explode('.',$s);
-        foreach ($s as $k => $v) {
-          if($ps){
-            $s[$k] = '`'.$this->settings->prefix.$v.$this->settings->suffix.'`';
-          }else{
-            $s[$k] = '`'.$v.'`';
-          }
-        }
-        return join('.',$s);
-      }else{
-        if($ps){
-          return '`'.$this->settings->prefix.$s.$this->settings->suffix.'`';
-        }else{
-          return '`'.$s.'`';
-        }
-      }
-    }else{
-      if($ps){
-        return $this->settings->prefix.$s.$this->settings->suffix;
-      }else{
-        return $s;
-      }
-    }
   }
 
   /**
@@ -692,132 +573,114 @@ class YSPDO {
   * @param string|array $where
   * @return string
   */
-  private function _cWhere($where){
-    if(!is_null($where)){
-      $sql = '';
-      $arrayWhere = [];
-      $addedWHERE = false;
-      $doNotNeedAND = ['ORDER','LIMIT'];
-      $pos = '';
-      if(is_array($where)){
-        foreach( $where as $key => $val ){
-          switch ($key) {
+  private function cWHERE($where){
+
+    $pattern_comparison_operators = '/\{(=|!=|<>|>|<|>=|<=|!<|!>)\}/';
+
+    if (is_array($where) && count($where) > 0) {
+      $queryArray = ['WHERE'];
+      foreach($where as $whereKey => $whereValue) {
+        $lastKeyQueryArray = count($queryArray)-1;
+        if(is_int($whereKey)){ // Logical Operators
+          switch ($whereValue) {
+            case 'OR':
+              $queryArray[$lastKeyQueryArray] = 'OR';
+            break;
+            case 'AND':
+              $queryArray[$lastKeyQueryArray] = 'AND';
+            break;
+          }
+        }else{
+          switch ($whereKey) {
+            // SQL > ORDER BY
             case 'ORDER':
-              $pos .= ' ORDER BY ';
-              if(is_array($val)){
-                foreach ($val as $data) {
-                  if(strpos($data, ' ') !== false){
-                    $data = explode(' ',$data);
-                    $pos .= $this->_backtick($data[0]).' '.$data[1].', ';
-                  }else{
-                    $pos .= $this->_backtick($data).', ';
-                  }
-                }
-                $pos = rtrim($pos,', ');
-              }else{
-                if(strpos($val, ' ') !== false){
-                  $data = explode(' ',$val);
-                  $pos .= $this->_backtick($data[0]).' '.$data[1];
-                }else{
-                  $pos .= $this->_backtick($val);
-                }
+              if(in_array(@$queryArray[$lastKeyQueryArray],['WHERE','AND','OR'])) unset($queryArray[$lastKeyQueryArray]);
+              
+              if(is_array($whereValue)){
+                $order = array_map(function($n){
+                  $m = explode(' ',$n); 
+                  return (count($m)==2) ? $this->backtick($m[0]) . ' ' . strtoupper($m[1]) : $this->backtick($m[0]);
+                },array_values($whereValue));
+                $whereValue = implode(',',$order);
+                unset($order,$m);
               }
+              $queryArray[] = 'ORDER BY ' . $whereValue;
             break;
+            // SQL > LIMIT
             case 'LIMIT':
-              $pos .= ' LIMIT '.$val;
+              if(in_array(@$queryArray[$lastKeyQueryArray],['WHERE','AND','OR'])) unset($queryArray[$lastKeyQueryArray]);
+              $queryArray[] = 'LIMIT ' . $whereValue;
             break;
-            case '!IN':
-            case 'IN':
-              if(!$addedWHERE){
-                $sql .= ' WHERE ';
-                $addedWHERE = true;
-              }
-              $in = ( strpos( $key , '!' ) !== false ) ? ' NOT IN ' : ' IN ';
-              $sql .= $this->_backtick(key( $val )) . $in . '(';
-              foreach($val[key($val)] as $values){
-                $sql .= '\''.$values.'\',';
-              }
-              $sql = rtrim($sql,',');
-              $sql .= (!next($where)) ? ')' : (in_array(key($where),$doNotNeedAND)) ? ')' : ') AND ';
-            break;
+            // SQL > LIKE and NOTLIKE
             case 'LIKE':
             case '!LIKE':
-              if(!$addedWHERE){
-                $sql .= ' WHERE ';
-                $addedWHERE = true;
-              }
-              $like = ( strpos( $key , '!' ) !== false ) ? ' NOT LIKE ' : ' LIKE ';
-              $sql .= $this->_backtick( key( $val ) ) . $like . '\''.$val[key($val)].'\'';
-              if(next($where)!==false){
-                if(!current($where) || !in_array(key($where),$doNotNeedAND)){
-                  $sql .= ' AND ';
-                }
-              }
+              $not = ( substr($whereKey,0,1) == '!' ) ? 'NOT ' : '';
+              $column = key($whereValue);
+              $queryArray[] = $this->backtick( $column ) . ' ' . $not . 'LIKE \'' . $whereValue[$column] . "'";
+              $queryArray[] = 'AND';
+              unset($not);
+              unset($column);
             break;
+            // SQL > IN and NOT IN
+            case 'IN':
+            case '!IN':
+              $not = ( substr($whereKey,0,1) == '!' ) ? 'NOT ' : '';
+              
+              $in = array_map(function($n){
+                return is_string($n) ? "'" . $n . "'" : $n;
+              },array_values($whereValue)[0]);
+
+              $queryArray[] = $this->backtick( key($whereValue) ) . ' ' . $not .  'IN (' . implode(',',$in) . ')';
+              $queryArray[] = 'AND';
+              unset($not);
+              unset($in);
+            break;
+            // SQL > BETWEEN and  NOT BETWEEN
             case '!BETWEEN':
             case 'BETWEEN':
-              if(!$addedWHERE){
-                $sql .= ' WHERE ';
-                $addedWHERE = true;
+              $not = ( substr($whereKey,0,1) == '!' ) ? 'NOT ' : '';
+              $between = array_values($whereValue)[0];
+              if(is_string($between[0]) && is_string($between[1])){
+                $between[0] = "'" . $between[0] . "'";
+                $between[1] = "'" . $between[1] . "'";
               }
-              $data = $val[key($val)];
-              if(gettype($data[0]) == 'string' ){
-                if(!preg_match("/\W/", $data[0])){
-                  $data = ['\''.$data[0].'\'','\''.$data[1].'\''];
-                }
-              }
-              $between = ( strpos( $key , '!' ) !== false ) ? 'NOT BETWEEN' : 'BETWEEN';
-              $sql .= $this->_backtick(key($val))." {$between} {$data[0]} AND {$data[1]}";
-              if(next($where)!==false){
-                if(!current($where) || !in_array(key($where),$doNotNeedAND)){
-                  $sql .= ' AND ';
-                }
-              }
+              $queryArray[] =  $this->backtick( key($whereValue) ) . ' ' . $not . 'BETWEEN ' . $between[0] .  ' AND ' .  $between[1];
+              $queryArray[] = 'AND';
+              unset($not);
+              unset($between);
             break;
+
             default:
-              if(!$addedWHERE){
-                $sql .= ' WHERE ';
-                $addedWHERE = true;
+              $operator = '=';
+              if(preg_match($pattern_comparison_operators, $whereKey, $match_operator) === 1){
+                $whereKey = preg_replace($pattern_comparison_operators, "", $whereKey);
+                $operator = $match_operator[1];
+                unset($match_operator);
               }
-              array_push($arrayWhere, $key);
+              $queryArray[] = $this->backtick( $whereKey ) . $operator . '?';
+              $queryArray[] = 'AND';
             break;
-          }
+          } 
         }
-        foreach ($arrayWhere as $value) {
-          $key = $value;
-          $operator;
-          $allowedOperators = ['=','>','<','>=','<=','<>'];
-          if(preg_match("/\{.*\}/", $value, $operator)){
-            $key = preg_replace("/\{.*\}/", "", $value);
-            $operator = str_replace(['{','}'],'',$operator[0]);
-            if(!in_array($operator,$allowedOperators)){
-              die("Operator ({$operator}) in Query is invalid");
-            }
-          }else{
-            $operator = '=';
-          }
-          $sql .= $this->_backtick( $key ) . $operator . '? AND ';
-        }
-        $sql = rtrim($sql,' AND ');
-        $sql .= $pos.';';
-      }else{
-        $sql .= ' '.$where.';';
       }
-    }else{
-      $sql = ';';
+      if(in_array(end($queryArray),['AND','WHERE'])) array_pop($queryArray);
     }
-    return $sql;
+    return isset($queryArray) ? implode(' ',$queryArray) : $where . ';';
   }
 
   /**
-  * Get Message Exception
+  * Add backtick
   *
-  * @param object $e
+  * @param string $str
   * @return string
   */
-  private function _PDOException($e){
-    $this->query = null;
-    die($e->getMessage());
+  private function backtick(string $str){
+    $str = explode('.', $str);
+    if(count($str) > 1){
+      return join('.', array_map(function($n){ return '`'. $n .'`'; },$str));
+    }else{
+      return '`'. $str[0] .'`';
+    }
   }
 
   /**
@@ -857,12 +720,12 @@ class YSPDO {
   */
   private function _getTypeVar($v) : int {
     switch (true){
-      case is_string($v): $a = \PDO::PARAM_STR;  break;
-      case is_int($v):    $a = \PDO::PARAM_INT;  break;
-      case is_bool($v):   $a = \PDO::PARAM_BOOL; break;
-      case is_null($v):   $a = \PDO::PARAM_NULL; break;
+      case is_string($v):   $a = \PDO::PARAM_STR;  break;
+      case is_int($v):      $a = \PDO::PARAM_INT;  break;
+      case is_bool($v):     $a = \PDO::PARAM_BOOL; break;
+      case is_null($v):     $a = \PDO::PARAM_NULL; break;
     }
-    return $a ?? \PDO::PARAM_NUL;
+    return $a ?? \PDO::PARAM_NULL;
   }
 
   /**
@@ -871,23 +734,29 @@ class YSPDO {
   * @param array $d
   * @return void
   */
-  private function _buildDSN(array $d){
-    $b = [];
-    $this->settings->driver = $d[0];
-    if(count($d) == 2 && is_int(array_search(end($d),$d))){
-      $this->dsn = $d[0] . ':' . $d[1];
+  private function buildDSN(array $dsn){
+    $this->driver = current( $dsn );
+    if(count($dsn) == 2 && is_int(array_search(end($dsn),$dsn))){
+      $this->dsn = $dsn[0] . ':' . $dsn[1];
     }else{
-      $this->dsn = $d[0].':';
-      unset($d[0]);
-      foreach ($d as $k => $v) {
-        if($k == 'prefix' || $k == 'suffix'){
-          $this->settings->$k = $v;
-        }else{
-          array_push($b, $k.'='.$v);
-        }
-      }
-      $this->dsn .= join($b,';');
+      $dsa = [];
+      array_shift( $dsn );
+      $this->dsn = $this->driver . ':';
+      foreach ($dsn as $k => $v) array_push($dsa, $k.'='.$v);
+      $this->dsn .= join($dsa,';');
     }
   }
+
+  /**
+  * Error exception
+  *
+  * @param array $data
+  * @return void
+  */
+  private function err_exception(array $data=[]){
+    $err = (count($data) != 0) ? $data : $this->errorInfo();
+    $err[3] = __CLASS__;
+    $err[4] = ($_SERVER['REQUEST_METHOD']=='GET') ? "<html><head></head><body style=\"margin:0;padding:0;\"><div style=\"width:100%;background-color:#660000;padding:15px 0;margin:0;font-family: Century Gothic, sans-serif;text-align:center;color:white;position:absolute;\"><b>{$err[3]} Error</b><br><br>{$err[2]}<br><br><small>{$err[0]} | {$err[1]}</small></div></body></html>" : $err[1];
+    exit($err[4]);
+  }
 }
-// YSPDO = ARRAYS+PDO
