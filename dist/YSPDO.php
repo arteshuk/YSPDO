@@ -363,7 +363,6 @@ class YSPDO {
   */
   public function insert(string $table, array $data){
     $sql = $this->cSQL('insert',$table,$data,null);
-    
     $this->query = $this->conn->prepare($sql);
     $i=1;
     foreach($data as $key => $val) {
@@ -389,10 +388,8 @@ class YSPDO {
     $this->query = $this->conn->prepare($sql);
     $i=1;
     foreach( $data as $key => $val){
-      if(!empty($val)){
-        $this->query->bindValue($i, $val, $this->_getTypeVar($val));
-        ++$i;
-      }
+      $this->query->bindValue($i, $val, $this->_getTypeVar($val));
+      ++$i;
     }
     if(is_array($where)){
       foreach( $where as $key => $val ) {
